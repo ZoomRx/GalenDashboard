@@ -1,0 +1,6 @@
+.env
+.venv
+node_modules
+langfuse_data_fetcher.log
+dashboard_data
+package-lock.json
