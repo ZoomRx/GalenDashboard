@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs').promises;
 const { spawn } = require('child_process');
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 
 // Middleware to parse JSON
 app.use(express.json());
@@ -81,5 +81,5 @@ app.post('/api/refresh-data', async (req, res) => {
 
 // Start the server
 app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
+    console.log(`Server running at Port: ${port}`);
 });
