@@ -7,11 +7,11 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script> <script src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Paste your existing CSS styles here */
         :root {
             --primary-color: #4361ee;
             --secondary-color: #3f37c9;
@@ -20,202 +20,55 @@
             --light-bg: #f8f9fa;
             --border-color: #dee2e6;
         }
-
-        body {
-            font-family: 'Segoe UI', 'Roboto', sans-serif;
-            background-color: #f5f7fb;
-            color: var(--text-color);
-        }
-
-        .dashboard-header {
-            background-color: white;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .card {
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-            border: none;
-            transition: all 0.3s ease;
-        }
-
-        .card:hover {
-            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-            transform: translateY(-2px);
-        }
-
-        .card-header {
-            background-color: white;
-            border-bottom: 1px solid var(--border-color);
-            font-weight: 600;
-            padding: 15px 20px;
-            border-top-left-radius: 10px !important;
-            border-top-right-radius: 10px !important;
-        }
-
-        .metric-card .card-body {
-            padding: 25px;
-        }
-
-        .metric-value {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 5px;
-            color: var(--primary-color);
-        }
-
-        .metric-label {
-            font-size: 14px;
-            color: #6c757d;
-            margin-bottom: 0;
-        }
-
-        .filter-container {
-            background-color: white;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-        }
-
-        .tab-content {
-            padding: 20px 0;
-        }
-
-        .tab-pane {
-            animation: fadeIn 0.5s;
-        }
-
-        .nav-tabs .nav-link {
-            color: #495057;
-            font-weight: 500;
-            border: none;
-            padding: 10px 15px;
-        }
-
-        .nav-tabs .nav-link.active {
-            color: var(--primary-color);
-            border-bottom: 3px solid var(--primary-color);
-            background-color: transparent;
-        }
-
-        .table {
-            border-collapse: separate;
-            border-spacing: 0;
-            width: 100%; /* Ensure table takes full width */
-        }
-
-        .table th {
-            background-color: #f8f9fa;
-            font-weight: 600;
-            white-space: nowrap; /* Prevent header text wrapping */
-        }
-
-        .table td, .table th {
-            padding: 12px 15px;
-            vertical-align: middle;
-        }
-        /* Add word-wrap for specific columns if needed */
-        #userTable td:nth-child(1), /* User ID */
-        #conversationTable td:nth-child(1), /* Conv ID */
-        #sessionTable td:nth-child(1) /* Session ID */
-         {
-             word-break: break-all;
-        }
-
-
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--primary-color);
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .daterangepicker {
-            font-family: 'Segoe UI', 'Roboto', sans-serif;
-        }
-
-        #dateRangeFilter {
-            background-color: white;
-            border: 1px solid var(--border-color);
-            cursor: pointer;
-            padding: 8px 12px;
-            border-radius: 5px;
-        }
-
-        .badge-agent {
-            font-size: 11px;
-            padding: 4px 8px;
-            border-radius: 12px;
-            white-space: nowrap; /* Prevent badge text wrapping */
-        }
-
-        /* Agent badge colors (ensure these match your agents) */
+        body { font-family: 'Segoe UI', 'Roboto', sans-serif; background-color: #f5f7fb; color: var(--text-color); }
+        .dashboard-header { background-color: white; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-bottom: 1px solid var(--border-color); }
+        .card { border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; border: none; transition: all 0.3s ease; }
+        .card:hover { box-shadow: 0 8px 15px rgba(0,0,0,0.1); transform: translateY(-2px); }
+        .card-header { background-color: white; border-bottom: 1px solid var(--border-color); font-weight: 600; padding: 15px 20px; border-top-left-radius: 10px !important; border-top-right-radius: 10px !important; }
+        .metric-card .card-body { padding: 25px; }
+        .metric-value { font-size: 32px; font-weight: 700; margin-bottom: 5px; color: var(--primary-color); }
+        .metric-label { font-size: 14px; color: #6c757d; margin-bottom: 0; }
+        .filter-container { background-color: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .tab-content { padding: 20px 0; }
+        .tab-pane { animation: fadeIn 0.5s; }
+        .nav-tabs .nav-link { color: #495057; font-weight: 500; border: none; padding: 10px 15px; }
+        .nav-tabs .nav-link.active { color: var(--primary-color); border-bottom: 3px solid var(--primary-color); background-color: transparent; }
+        .table { border-collapse: separate; border-spacing: 0; width: 100%; }
+        .table th { background-color: #f8f9fa; font-weight: 600; white-space: nowrap; }
+        .table td, .table th { padding: 12px 15px; vertical-align: middle; }
+        #userTable td:nth-child(1),
+        #conversationTable td:nth-child(1),
+        #sessionTable td:nth-child(1),
+        #modelTable td:nth-child(1) { word-break: break-all; } /* Allow long IDs/names to wrap */
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary-color); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .daterangepicker { font-family: 'Segoe UI', 'Roboto', sans-serif; }
+        #dateRangeFilter { background-color: white; border: 1px solid var(--border-color); cursor: pointer; padding: 8px 12px; border-radius: 5px; }
+        .badge-agent { font-size: 11px; padding: 4px 8px; border-radius: 12px; white-space: nowrap; }
+        /* Define agent colors - Add more as needed */
         .agent-hcp_p { background-color: #8ac926; color: white; }
         .agent-scoping { background-color: #1982c4; color: white; }
         .agent-synapse { background-color: #6a4c93; color: white; }
         .agent-hashtag { background-color: #ff595e; color: white; }
         .agent-survey_coding { background-color: #ffca3a; color: black; }
-        .agent-unknown { background-color: #adb5bd; color: white; } /* Default/unknown */
+        .agent-unknown { background-color: #adb5bd; color: white; }
+        .agent-default { background-color: #6c757d; color: white; } /* Fallback */
+        .progress { height: 8px; border-radius: 4px; }
+        .dropdown-item:hover { background-color: #f1f3f9; }
+        .dropdown-item.active { background-color: var(--primary-color); }
+        th[data-field] { cursor: pointer; }
+        .sorting-asc::after { content: ' ↑'; color: var(--primary-color); font-size: 0.8em; }
+        .sorting-desc::after { content: ' ↓'; color: var(--primary-color); font-size: 0.8em; }
+        .pagination-controls { margin-top: 1rem; padding: 0.5rem; background-color: #f8f9fa; border-radius: 0.25rem; }
+        .pagination-info { color: #6c757d; font-size: 0.875rem; }
+        /* Style for clickable links (COMMENTED OUT) */
+        /* td a { color: var(--primary-color); text-decoration: none; } */
+        /* td a:hover { text-decoration: underline; } */
+         /* Fix Model Usage Alignment */
+        #modelTable th, #modelTable td { text-align: right; } /* Right-align numeric data */
+        #modelTable th:first-child, #modelTable td:first-child { text-align: left; } /* Left-align model name */
 
-
-        .progress {
-            height: 8px;
-            border-radius: 4px;
-        }
-
-        .dropdown-item:hover {
-            background-color: #f1f3f9;
-        }
-
-        .dropdown-item.active {
-            background-color: var(--primary-color);
-        }
-
-        /* Add sorting indicators */
-        th[data-field] { /* Only apply cursor to sortable headers */
-             cursor: pointer;
-        }
-        .sorting-asc::after {
-            content: ' ↑';
-            color: var(--primary-color);
-            font-size: 0.8em; /* Make arrow smaller */
-        }
-
-        .sorting-desc::after {
-            content: ' ↓';
-            color: var(--primary-color);
-             font-size: 0.8em; /* Make arrow smaller */
-        }
-
-        /* Style pagination controls */
-        .pagination-controls {
-            margin-top: 1rem;
-            padding: 0.5rem;
-            background-color: #f8f9fa;
-            border-radius: 0.25rem;
-        }
-
-        .pagination-info {
-            color: #6c757d;
-            font-size: 0.875rem;
-        }
     </style>
 </head>
 <body>
@@ -259,20 +112,17 @@
             <div class="col-12">
                 <div class="filter-container">
                     <div class="row g-3 align-items-end">
-                        <div class="col-md-5">
+                        <div class="col-md-6">
                             <label for="agentFilter" class="form-label mb-1 small">Agent</label>
                             <select id="agentFilter" class="form-select form-select-sm">
                                 <option value="all">All Agents</option>
                                 </select>
                         </div>
-                        <div class="col-md-5">
+                        <div class="col-md-6">
                              <label for="userFilter" class="form-label mb-1 small">User</label>
                             <select id="userFilter" class="form-select form-select-sm">
                                 <option value="all">All Users</option>
                                 </select>
-                        </div>
-                         <div class="col-md-2">
-                             <button id="applyFiltersButton" class="btn btn-primary btn-sm w-100">Apply Filters</button>
                         </div>
                     </div>
                 </div>
@@ -322,7 +172,6 @@
             </div>
         </div>
 
-
         <div class="row mb-4">
             <div class="col-lg-8 mb-3">
                 <div class="card h-100">
@@ -371,26 +220,26 @@
                         </ul>
                     </div>
                     <div class="card-body">
-                        <div class="tab-content" id="dataTabsContent">
-                            <div id="tableLoadingIndicator" class="text-center py-5" style="display: none;">
-                                <div class="spinner-border text-primary" role="status">
-                                    <span class="visually-hidden">Loading...</span>
-                                </div>
-                                <p class="mt-2">Loading data...</p>
+                        <div id="tableLoadingIndicator" class="text-center py-5" style="display: none;">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
                             </div>
+                            <p class="mt-2">Loading data...</p>
+                        </div>
 
+                        <div class="tab-content" id="dataTabsContent">
                             <div class="tab-pane fade show active" id="user-data" role="tabpanel">
                                 <div class="table-responsive">
                                     <table class="table table-hover table-sm small" id="userTable">
                                         <thead>
                                             <tr>
                                                 <th data-field="userId">User ID</th>
-                                                <th data-field="totalTraces">Total Conv.</th>
+                                                <th data-field="totalTraces" class="text-end">Total Conv.</th>
                                                 <th data-field="agents" class="no-sort">Agents Used</th>
                                                 <th data-field="firstSeen">First Seen</th>
                                                 <th data-field="lastSeen">Last Seen</th>
-                                                <th data-field="totalTokens">Total Tokens</th>
-                                                <th data-field="totalCost">Total Cost ($)</th>
+                                                <th data-field="totalTokens" class="text-end">Total Tokens</th>
+                                                <th data-field="totalCost" class="text-end">Total Cost ($)</th>
                                             </tr>
                                         </thead>
                                         <tbody></tbody>
@@ -407,10 +256,11 @@
                                                 <th data-field="id">Conv. ID</th>
                                                 <th data-field="userId">User</th>
                                                 <th data-field="agent">Agent</th>
-                                                <th data-field="timestamp">Date</th>
-                                                <th data-field="messageCount">Messages</th>
-                                                <th data-field="totalTokens">Tokens</th>
-                                                <th data-field="totalCost">Cost ($)</th>
+                                                <th data-field="startTime">Start Time</th>
+                                                <th data-field="endTime">End Time</th>
+                                                <th data-field="messageCount" class="text-end">Observations</th>
+                                                <th data-field="totalTokens" class="text-end">Tokens</th>
+                                                <th data-field="totalCost" class="text-end">Cost ($)</th>
                                             </tr>
                                         </thead>
                                         <tbody></tbody>
@@ -427,11 +277,12 @@
                                                 <th data-field="id">Session ID</th>
                                                 <th data-field="userId">User</th>
                                                 <th data-field="agent">Agent</th>
-                                                <th data-field="createdAt">Start Time</th>
-                                                <th data-field="durationSeconds">Duration</th>
-                                                <th data-field="traceCount">Conv.</th>
-                                                <th data-field="totalTokens">Tokens</th>
-                                                <th data-field="totalCost">Cost ($)</th>
+                                                <th data-field="startTime">Start Time</th>
+                                                <th data-field="endTime">End Time</th>
+                                                <th data-field="durationSeconds" class="text-end">Duration</th>
+                                                <th data-field="traceCount" class="text-end">Conv.</th>
+                                                <th data-field="totalTokens" class="text-end">Tokens</th>
+                                                <th data-field="totalCost" class="text-end">Cost ($)</th>
                                             </tr>
                                         </thead>
                                         <tbody></tbody>
@@ -446,16 +297,17 @@
                                         <thead>
                                             <tr>
                                                 <th data-field="agent">Agent</th>
-                                                <th data-field="totalUsers">Total Users</th>
-                                                <th data-field="countTraces">Total Conv.</th>
-                                                <th data-field="avgMessagesPerConv">Avg Msgs/Conv</th>
-                                                <th data-field="totalTokens">Total Tokens</th>
-                                                <th data-field="totalCost">Total Cost ($)</th>
+                                                <th data-field="totalUsers" class="text-end">Total Users</th>
+                                                <th data-field="countTraces" class="text-end">Total Conv.</th>
+                                                <th data-field="avgMessagesPerConv" class="text-end">Avg Obs/Conv</th>
+                                                <th data-field="totalTokens" class="text-end">Total Tokens</th>
+                                                <th data-field="totalCost" class="text-end">Total Cost ($)</th>
                                             </tr>
                                         </thead>
                                         <tbody></tbody>
                                     </table>
                                 </div>
+                                <div id="agent-pagination"></div>
                                 </div>
 
                             <div class="tab-pane fade" id="model-data" role="tabpanel">
@@ -463,9 +315,10 @@
                                     <table class="table table-hover table-sm small" id="modelTable">
                                         <thead>
                                             <tr>
-                                                <th data-field="model">Model Name</th>
-                                                <th data-field="totalTokens">Total Tokens</th>
-                                                <th data-field="totalCost">Total Cost ($)</th>
+                                                <th data-field="model" class="text-start">Model Name</th>
+                                                <th data-field="observationCount" class="text-end">Observations</th>
+                                                <th data-field="totalTokens" class="text-end">Total Tokens</th>
+                                                <th data-field="totalCost" class="text-end">Total Cost ($)</th>
                                                 </tr>
                                         </thead>
                                         <tbody></tbody>
@@ -485,142 +338,96 @@
         // --- Global Variables ---
         let dailyUsageChart;
         let agentDistributionChart;
-        let allData = {}; // Store all fetched data
-        let filteredData = {}; // Store data filtered by date/agent/user
+        let allData = {};
+        let filteredData = {};
         let lastDataFetchTime = null;
-        const ITEMS_PER_PAGE = 50; // Pagination size
+        const ITEMS_PER_PAGE = 50;
+        // ** Fix: Commented out base URL for Langfuse links **
+        // const LANGFUSE_BASE_URL = 'https://your-langfuse-host.com'; // Replace with your Langfuse instance URL
 
         // Global state for sorting and pagination per table
         const tableState = {
             user: { sortField: 'lastSeen', sortDirection: 'desc', currentPage: 1 },
-            conversation: { sortField: 'timestamp', sortDirection: 'desc', currentPage: 1 },
-            session: { sortField: 'createdAt', sortDirection: 'desc', currentPage: 1 },
-            agent: { sortField: 'totalCost', sortDirection: 'desc', currentPage: 1 }, // Example sort for agent table
-            model: { sortField: 'totalCost', sortDirection: 'desc', currentPage: 1 }, // Example sort for model table
+            conversation: { sortField: 'endTime', sortDirection: 'desc', currentPage: 1 },
+            session: { sortField: 'endTime', sortDirection: 'desc', currentPage: 1 },
+            agent: { sortField: 'totalCost', sortDirection: 'desc', currentPage: 1 },
+            model: { sortField: 'totalCost', sortDirection: 'desc', currentPage: 1 },
         };
 
-
         // --- Utility Functions ---
-
-        // Format numbers and currency
-        function formatNumber(num) {
-            return (num || 0).toLocaleString();
-        }
-        function formatCost(num) {
-            return '$' + (num || 0).toFixed(4); // Show more precision for cost
-        }
+        function formatNumber(num) { return (num || 0).toLocaleString(); }
+        function formatCost(num) { return '$' + (num || 0).toFixed(4); }
         function formatDuration(seconds) {
             if (seconds === null || seconds === undefined || seconds < 0) return '-';
-            if (seconds < 60) return `${Math.round(seconds)}s`;
+            seconds = Math.round(seconds);
+            if (seconds < 60) return `${seconds}s`;
             const minutes = Math.floor(seconds / 60);
-            const remainingSeconds = Math.round(seconds % 60);
+            const remainingSeconds = seconds % 60;
             if (minutes < 60) return `${minutes}m ${remainingSeconds}s`;
             const hours = Math.floor(minutes / 60);
             const remainingMinutes = minutes % 60;
-            return `${hours}h ${remainingMinutes}m`;
+            return `${hours}h ${remainingMinutes}m ${remainingSeconds}s`;
         }
-        // Format dates using moment for better localization/consistency if needed
-        function formatDate(dateString, format = 'L') { // 'L' is locale default short date
+        function formatDate(dateString, format = 'YYYY-MM-DD') {
              if (!dateString) return '-';
-             const date = moment.utc(dateString); // Assume UTC from Python
-             return date.isValid() ? date.local().format(format) : '-'; // Display in local time
+             const date = moment.utc(dateString);
+             return date.isValid() ? date.local().format(format) : '-';
         }
-         function formatDateTime(dateString, format = 'L LT') { // 'L LT' is locale date + time
+         function formatDateTime(dateString, format = 'YYYY-MM-DD HH:mm:ss') {
              if (!dateString) return '-';
-             const date = moment.utc(dateString); // Assume UTC from Python
-             return date.isValid() ? date.local().format(format) : '-'; // Display in local time
+             const date = moment.utc(dateString);
+             return date.isValid() ? date.local().format(format) : '-';
         }
-
-        // Get badge class for agent (lowercase and replace spaces/special chars)
         function getAgentBadgeClass(agentName) {
             if (!agentName) return 'agent-unknown';
-            const className = agentName.toLowerCase().replace(/[^a-z0-9]+/g, '_');
-            // Check if a specific style exists, otherwise use a default
-            // This requires defining CSS like .agent-hcp_p, .agent-survey_coding etc.
-             // Example: If agent name is "HCP P", class becomes "agent-hcp_p"
-            // Example: If agent name is "Survey_Coding", class becomes "agent-survey_coding"
-            // We need to ensure CSS rules match these generated classes.
-            // Let's stick to the predefined ones for now and add a check.
-            const knownAgents = ['hcp_p', 'scoping', 'synapse', 'hashtag', 'survey_coding'];
-            if (knownAgents.includes(className)) {
-                return `agent-${className}`;
-            }
-            // Fallback for potentially dynamic agent names - create a consistent hash?
-            // Or just use a default 'agent-other' class
-            return 'agent-unknown'; // Default if no specific style found
+            const className = `agent-${agentName.toLowerCase().replace(/[^a-z0-9]+/g, '_')}`;
+            const knownClasses = ['agent-hcp_p', 'agent-scoping', 'agent-synapse', 'agent-hashtag', 'agent-survey_coding', 'agent-unknown'];
+            if (knownClasses.includes(className)) return className;
+            return 'agent-default';
         }
-
-        // Fetch JSON data helper
-        async function fetchJson(url) {
-            try {
+        async function fetchJson(url) { /* ... (fetchJson remains the same) ... */
+             try {
                 const response = await fetch(`${url}?t=${new Date().getTime()}`); // Cache bust
                 if (!response.ok) {
                     console.error(`HTTP error fetching ${url}: ${response.status} ${response.statusText}`);
-                    // Try to read error message from response body if available
                      let errorBody = '';
                     try { errorBody = await response.text(); } catch (e) { /* ignore */}
                     console.error("Error response body:", errorBody);
                     throw new Error(`HTTP error ${response.status}`);
                 }
-                 // Check content type before parsing
                 const contentType = response.headers.get("content-type");
-                if (contentType && contentType.indexOf("application/json") !== -1) {
+                if (contentType && contentType.includes("application/json")) {
                      return await response.json();
                 } else {
-                     console.error(`Received non-JSON response from ${url}. Content-Type: ${contentType}`);
-                    // Handle non-JSON response appropriately, e.g., return empty or throw error
-                    // For robustness, let's return an empty structure based on expected type
-                    // This is a basic check; might need refinement based on file names
-                     return url.includes('daily') || url.includes('agent') || url.includes('user') || url.includes('conversation') || url.includes('model') || url.includes('all') ? [] : {};
+                     console.warn(`Received non-JSON response from ${url}. Content-Type: ${contentType}. Returning empty.`);
+                     if (url.includes('daily') || url.includes('agent') || url.includes('user') || url.includes('conversation') || url.includes('session') || url.includes('model')) return [];
+                     return {};
                  }
             } catch (error) {
                 console.error(`Error fetching or parsing ${url}:`, error);
-                // Return default empty structure based on expected type
-                return url.includes('daily') || url.includes('agent') || url.includes('user') || url.includes('conversation') || url.includes('model') || url.includes('all') ? [] : {};
+                 if (url.includes('daily') || url.includes('agent') || url.includes('user') || url.includes('conversation') || url.includes('session') || url.includes('model')) return [];
+                 return {};
             }
+         }
+        function logFrontendEvent(message) { console.log("FE Log:", message); }
+        function showLoading(tabId = null) { /* ... (showLoading remains the same) ... */
+              $('#tableLoadingIndicator').show();
+             if (tabId) $(`#${tabId} tbody`).hide();
         }
-
-         // Log frontend events (placeholder)
-        function logFrontendEvent(message) {
-            console.log("FE Log:", message);
-            // Optional: Send to backend endpoint if needed
-            // fetch('/api/log', { /* ... */ });
-        }
-
-        // Show/Hide loading indicator
-        function showLoading(tabId = null) {
-             const indicator = document.getElementById('tableLoadingIndicator');
-             if (indicator) indicator.style.display = 'block';
-             // Optionally hide the specific table body while loading
-             if (tabId) {
-                const tableBody = document.querySelector(`#${tabId} tbody`);
-                 if (tableBody) tableBody.style.display = 'none';
-             }
-        }
-        function hideLoading(tabId = null) {
-             const indicator = document.getElementById('tableLoadingIndicator');
-             if (indicator) indicator.style.display = 'none';
-             // Show the table body again
-             if (tabId) {
-                 const tableBody = document.querySelector(`#${tabId} tbody`);
-                 if (tableBody) tableBody.style.display = ''; // Reset display
-             }
+        function hideLoading(tabId = null) { /* ... (hideLoading remains the same) ... */
+             $('#tableLoadingIndicator').hide();
+             if (tabId) $(`#${tabId} tbody`).show();
         }
 
         // --- Data Loading and Processing ---
-
-        // Load all necessary data files
-        async function loadAllData() {
-            showLoading();
-             logFrontendEvent("Initiating data load...");
+        async function loadAllData() { /* ... (loadAllData remains mostly the same, parsing logic updated slightly if needed) ... */
+             showLoading();
+            logFrontendEvent("Initiating data load...");
             const dataFiles = [
                 'all_daily_metrics.json', 'all_traces.json', 'all_sessions.json',
-                'user_metrics.json', 'agent_comparison.json', // Core summary files
-                'model_token_usage.json' // Added model usage summary
-                // 'all_observations.json' - Load only if needed for drill-down, can be large
+                'user_metrics.json', 'agent_comparison.json', 'model_token_usage.json'
             ];
             const promises = dataFiles.map(file => fetchJson(`/dashboard_data/${file}`));
-
             try {
                 const results = await Promise.all(promises);
                 allData = {
@@ -629,18 +436,22 @@
                     sessions: results[2] || [],
                     userMetrics: results[3] || [],
                     agentComparison: results[4] || [],
-                    modelUsage: results[5] || [], // Store model usage
-                    // observations: results[6] || [] // If loading observations
+                    modelUsage: results[5] || [],
                 };
-                logFrontendEvent(`Data loaded: ${allData.traces?.length} traces, ${allData.sessions?.length} sessions, ${allData.dailyMetrics?.length} daily records.`);
-
-                 // Convert timestamp strings back to Date objects for easier filtering/sorting
-                const parseDates = (items, dateFields) => {
+                // Add debug log for agent comparison data
+                console.log("Loaded agent comparison data:", allData.agentComparison);
+                
+                logFrontendEvent(`Data loaded: ${allData.traces?.length} traces, ${allData.sessions?.length} sessions.`);
+                 const parseDates = (items, dateFields) => {
                     if (!Array.isArray(items)) return;
                     items.forEach(item => {
                          dateFields.forEach(field => {
-                            if (item[field]) {
-                                item[field] = moment.utc(item[field]).toDate(); // Use moment to parse ISO strings
+                            if (item[field] && typeof item[field] === 'string') {
+                                item[field] = moment.utc(item[field]).toDate();
+                            } else if (item[field] && !(item[field] instanceof Date)) {
+                                const parsed = moment.utc(item[field]);
+                                item[field] = parsed.isValid() ? parsed.toDate() : null;
+                                if (!item[field]) console.warn(`Could not parse date field '${field}'`, item[field]);
                             }
                          });
                     });
@@ -648,315 +459,173 @@
                 parseDates(allData.traces, ['timestamp', 'startTime', 'endTime']);
                 parseDates(allData.sessions, ['createdAt', 'startTime', 'endTime']);
                 parseDates(allData.userMetrics, ['firstSeen', 'lastSeen']);
-                // Daily metrics 'date' field is just YYYY-MM-DD, keep as string or parse if needed
-
-
-                populateFilterOptions(); // Populate filters based on loaded data
-                applyFiltersAndRefresh(); // Apply initial filters (date range, all agents/users)
-                updateLastDataFetch(true); // Set last data fetch time from successful load
-
+                populateAgentFilter();
+                populateUserFilter();
+                applyFiltersAndRefresh();
+                updateLastDataFetch(true);
             } catch (error) {
                 console.error('Error loading dashboard data:', error);
-                alert('Failed to load dashboard data. Please check the console for details and ensure the data files exist.');
-                updateLastDataFetch(false); // Indicate fetch failure
+                alert('Failed to load dashboard data. Check console and data files.');
+                updateLastDataFetch(false);
             } finally {
                  hideLoading();
             }
         }
-
-        // Populate Agent and User filter dropdowns
-        function populateFilterOptions() {
-            const agentSelect = document.getElementById('agentFilter');
-            const userSelect = document.getElementById('userFilter');
-
-            // Agents from agentComparison or directly from traces/sessions/metrics
-            const agents = [...new Set(allData.dailyMetrics.map(m => m.agent))].sort();
-             // Clear existing options except 'All'
-            agentSelect.innerHTML = '<option value="all">All Agents</option>';
+        function populateAgentFilter() { /* ... (populateAgentFilter remains the same) ... */
+             const agentSelect = $('#agentFilter');
+            const agents = [...new Set(allData.agentComparison?.map(a => a.agent) ?? [])].sort();
+            agentSelect.find('option:not(:first)').remove();
             agents.forEach(agent => {
-                const option = document.createElement('option');
-                option.value = agent;
-                option.textContent = agent; // Consider a mapping for user-friendly names if needed
-                agentSelect.appendChild(option);
+                agentSelect.append($('<option>', { value: agent, text: agent }));
             });
-
-            // Users from userMetrics
-            const users = [...new Set(allData.userMetrics.map(u => u.userId))].sort();
-             // Clear existing options except 'All'
-            userSelect.innerHTML = '<option value="all">All Users</option>';
-            users.forEach(userId => {
-                const option = document.createElement('option');
-                option.value = userId;
-                option.textContent = userId;
-                userSelect.appendChild(option);
-            });
-             logFrontendEvent(`Populated filters: ${agents.length} agents, ${users.length} users.`);
+            logFrontendEvent(`Populated agent filter: ${agents.length} agents.`);
         }
-
-
-        // Filter data based on date range, agent, user
-        function applyFiltersAndRefresh() {
-             logFrontendEvent("Applying filters and refreshing dashboard...");
-            const agentFilter = document.getElementById('agentFilter').value;
-            const userFilter = document.getElementById('userFilter').value;
+        function populateUserFilter() { /* ... (populateUserFilter remains the same) ... */
+            const userSelect = $('#userFilter');
+            const selectedAgent = $('#agentFilter').val();
+            let users = [];
+            if (selectedAgent === 'all') {
+                users = [...new Set(allData.userMetrics?.map(u => u.userId) ?? [])].sort();
+            } else {
+                users = [...new Set(
+                    allData.userMetrics
+                        ?.filter(u => u.agents && u.agents.includes(selectedAgent))
+                        .map(u => u.userId) ?? []
+                )].sort();
+            }
+            const currentVal = userSelect.val();
+            userSelect.find('option:not(:first)').remove();
+            users.forEach(userId => {
+                userSelect.append($('<option>', { value: userId, text: userId }));
+            });
+            if (users.includes(currentVal)) userSelect.val(currentVal);
+            else userSelect.val('all');
+            logFrontendEvent(`Populated user filter for agent '${selectedAgent}': ${users.length} users.`);
+        }
+        function applyFiltersAndRefresh() { /* ... (applyFiltersAndRefresh remains the same) ... */
+            logFrontendEvent("Applying filters and refreshing dashboard...");
+            const agentFilter = $('#agentFilter').val();
+            const userFilter = $('#userFilter').val();
             const dateRange = $('#dateRangeFilter').data('daterangepicker');
-            const startDate = dateRange.startDate.toDate(); // Get JS Date object
-            const endDate = dateRange.endDate.endOf('day').toDate(); // Get JS Date object (end of day)
-
-             filteredData = {}; // Reset filtered data
-
-            // Filter Daily Metrics (match date string)
-             const startDateStr = dateRange.startDate.format('YYYY-MM-DD');
-             const endDateStr = dateRange.endDate.format('YYYY-MM-DD');
-             filteredData.dailyMetrics = allData.dailyMetrics?.filter(m =>
+             if (!dateRange) {
+                 logFrontendEvent("Date range picker not initialized yet. Skipping filter.");
+                 return;
+             }
+            const startDate = dateRange.startDate.startOf('day').toDate();
+            const endDate = dateRange.endDate.endOf('day').toDate();
+             filteredData = {};
+            const startDateStr = moment(startDate).format('YYYY-MM-DD');
+            const endDateStr = moment(endDate).format('YYYY-MM-DD');
+            filteredData.dailyMetrics = allData.dailyMetrics?.filter(m =>
                  m.date >= startDateStr && m.date <= endDateStr &&
                  (agentFilter === 'all' || m.agent === agentFilter)
              ) ?? [];
-
-             // Filter Traces (use Date objects for comparison)
-             filteredData.traces = allData.traces?.filter(t =>
-                 t.timestamp >= startDate && t.timestamp <= endDate &&
-                 (agentFilter === 'all' || t.agent === agentFilter) &&
-                 (userFilter === 'all' || t.userId === userFilter)
-            ) ?? [];
-
-             // Filter Sessions (use Date objects for comparison - createdAt or startTime)
-             filteredData.sessions = allData.sessions?.filter(s =>
-                 s.createdAt >= startDate && s.createdAt <= endDate && // Filter by creation time
-                 (agentFilter === 'all' || s.agent === agentFilter) &&
-                 (userFilter === 'all' || s.userId === userFilter)
-             ) ?? [];
-
-             // Filter User Metrics (based on lastSeen within range, and agent/user selection)
-             // Note: User metrics are pre-aggregated, filtering might need different logic
-             // Let's filter users who were active (lastSeen) in the period
-             filteredData.userMetrics = allData.userMetrics?.filter(u =>
-                 (u.lastSeen >= startDate && u.lastSeen <= endDate) &&
-                 (userFilter === 'all' || u.userId === userFilter) &&
-                 (agentFilter === 'all' || u.agents.includes(agentFilter)) // Check if user used the selected agent
-             ) ?? [];
-
-             // Filter Model Usage (aggregate from filtered traces/observations if needed, or use pre-aggregated)
-             // For now, use the pre-aggregated data and filter later if necessary or show all models used in period.
-             // Let's recalculate model usage based on *filtered* traces/observations if available
-             // For simplicity, we'll just use the pre-aggregated `allData.modelUsage` for now.
-             // A more accurate approach would re-aggregate from filtered observations.
-              filteredData.modelUsage = allData.modelUsage ?? []; // Using pre-aggregated for now
-
+             filteredData.traces = allData.traces?.filter(t => {
+                 const traceTime = (t.endTime instanceof Date && !isNaN(t.endTime)) ? t.endTime :
+                                  (t.startTime instanceof Date && !isNaN(t.startTime)) ? t.startTime :
+                                  (t.timestamp instanceof Date && !isNaN(t.timestamp)) ? t.timestamp : null;
+                 return traceTime && traceTime >= startDate && traceTime <= endDate &&
+                        (agentFilter === 'all' || t.agent === agentFilter) &&
+                        (userFilter === 'all' || t.userId === userFilter);
+             }) ?? [];
+              filteredData.sessions = allData.sessions?.filter(s => {
+                 const sessionTime = (s.endTime instanceof Date && !isNaN(s.endTime)) ? s.endTime :
+                                     (s.createdAt instanceof Date && !isNaN(s.createdAt)) ? s.createdAt : null;
+                 return sessionTime && sessionTime >= startDate && sessionTime <= endDate &&
+                        (agentFilter === 'all' || s.agent === agentFilter) &&
+                        (userFilter === 'all' || s.userId === userFilter);
+             }) ?? [];
+              filteredData.userMetrics = allData.userMetrics?.filter(u => {
+                   const lastSeen = (u.lastSeen instanceof Date && !isNaN(u.lastSeen)) ? u.lastSeen : null;
+                   return lastSeen && lastSeen >= startDate && lastSeen <= endDate &&
+                          (userFilter === 'all' || u.userId === userFilter) &&
+                          (agentFilter === 'all' || (u.agents && u.agents.includes(agentFilter)))
+              }) ?? [];
+             filteredData.modelUsage = aggregateModelUsage(filteredData.traces, filteredData.sessions);
+             
+             // Add agent comparison filtering
+             filteredData.agentComparison = agentFilter === 'all' 
+                ? allData.agentComparison ?? []
+                : allData.agentComparison?.filter(a => a.agent === agentFilter) ?? [];
+                
              logFrontendEvent(`Filtering complete: ${filteredData.traces?.length} traces, ${filteredData.sessions?.length} sessions remain.`);
-
-            updateDashboard(); // Refresh UI components
+             updateDashboard();
         }
+        function aggregateModelUsage(filteredTraces, filteredSessions) { /* ... (aggregateModelUsage remains the same, returning unfiltered data) ... */
+            console.warn("Model Usage tab currently shows overall usage, not filtered by agent/user.");
+            return allData.modelUsage ?? [];
+         }
 
         // --- UI Update Functions ---
-
-        function updateDashboard() {
-             logFrontendEvent("Updating dashboard UI...");
+        function updateDashboard() { /* ... (updateDashboard remains the same) ... */
+              logFrontendEvent("Updating dashboard UI...");
             updateSummaryMetrics();
             updateCharts();
-            updateActiveTable(); // Update the currently visible table
-        }
-
-        function updateSummaryMetrics() {
-            let totalTokens = 0;
+            updateActiveTable();
+         }
+        function updateSummaryMetrics() { /* ... (updateSummaryMetrics remains the same) ... */
+             let totalTokens = 0;
             let totalCost = 0.0;
-            let agentSet = new Set(); // Agents active in the filtered period
-
-            // Sum from filtered daily metrics
-             filteredData.dailyMetrics?.forEach(day => {
-                totalTokens += day.totalTokens || 0;
-                totalCost += day.totalCost || 0.0;
-                agentSet.add(day.agent);
-             });
-
-            // Alternative: Sum from filtered traces if daily metrics are missing/incomplete
-            // if (totalTokens === 0 && totalCost === 0) {
-            //    filteredData.traces?.forEach(trace => {
-            //       totalTokens += trace.totalTokens || 0;
-            //       totalCost += trace.totalCost || 0.0;
-            //       agentSet.add(trace.agent);
-            //    });
-            // }
-
-
+            filteredData.traces?.forEach(trace => {
+                totalTokens += trace.totalTokens || 0;
+                totalCost += trace.totalCost || 0.0;
+            });
             const totalConversations = filteredData.traces?.length ?? 0;
             const totalSessions = filteredData.sessions?.length ?? 0;
-            // Count unique users from the filtered traces
             const activeUsers = new Set(filteredData.traces?.map(t => t.userId).filter(Boolean)).size;
-
-
-            document.getElementById('totalTokensValue').textContent = formatNumber(totalTokens);
-            document.getElementById('totalCostValue').textContent = formatCost(totalCost); // Use more precision
-            document.getElementById('totalConversationsValue').textContent = formatNumber(totalConversations);
-            document.getElementById('totalSessionsValue').textContent = formatNumber(totalSessions);
-            document.getElementById('activeUsersValue').textContent = formatNumber(activeUsers);
+            $('#totalTokensValue').text(formatNumber(totalTokens));
+            $('#totalCostValue').text(formatCost(totalCost));
+            $('#totalConversationsValue').text(formatNumber(totalConversations));
+            $('#totalSessionsValue').text(formatNumber(totalSessions));
+            $('#activeUsersValue').text(formatNumber(activeUsers));
         }
-
-        function updateCharts() {
-            updateDailyUsageChart();
+        function updateCharts() { /* ... (updateCharts remains the same) ... */
+             updateDailyUsageChart();
             updateAgentDistributionChart();
         }
 
         // --- Chart Initialization and Updates ---
-
-        function initializeCharts() {
-            // Daily usage chart
-            const dailyCtx = document.getElementById('dailyUsageChart').getContext('2d');
+        function initializeCharts() { /* ... (initializeCharts remains the same) ... */
+             const dailyCtx = document.getElementById('dailyUsageChart').getContext('2d');
             dailyUsageChart = new Chart(dailyCtx, {
-                type: 'line',
-                data: { labels: [], datasets: [] }, // Initial empty data
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: { mode: 'index', intersect: false },
-                    plugins: {
-                        legend: { position: 'bottom' },
-                        tooltip: {
-                            callbacks: { // Custom tooltip formatting
-                                 label: function(context) {
-                                     let label = context.dataset.label || '';
-                                     if (label) { label += ': '; }
-                                     const value = context.parsed.y;
-                                     const metricType = document.querySelector('#dailyChartMetricToggle .active')?.dataset.metric || 'tokens';
-                                     if (value !== null) {
-                                          label += metricType === 'cost' ? formatCost(value) : formatNumber(value);
-                                     }
-                                     return label;
-                                 }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: { grid: { display: false } },
-                        y: {
-                            beginAtZero: true,
-                            ticks: { // Format Y-axis ticks
-                                 callback: function(value) {
-                                     const metricType = document.querySelector('#dailyChartMetricToggle .active')?.dataset.metric || 'tokens';
-                                      return metricType === 'cost' ? formatCost(value) : formatNumber(value);
-                                 }
-                             },
-                            title: { display: true, text: 'Usage' } // Dynamic title set in update
-                        }
-                    }
-                }
+                type: 'line', data: { labels: [], datasets: [] },
+                options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, plugins: { legend: { position: 'bottom' }, tooltip: { callbacks: {
+                        label: function(context) { let label = context.dataset.label || ''; if (label) label += ': '; const value = context.parsed.y; const metricType = $('#dailyChartMetricToggle .active').data('metric') || 'tokens'; if (value !== null) label += metricType === 'cost' ? formatCost(value) : formatNumber(value); return label; }
+                    }}}, scales: { x: { grid: { display: false } }, y: { beginAtZero: true, ticks: { callback: function(value) { const metricType = $('#dailyChartMetricToggle .active').data('metric') || 'tokens'; return metricType === 'cost' ? '$' + formatNumber(Math.round(value)) : formatNumber(value); }}, title: { display: true, text: 'Usage' } }} }
             });
-
-            // Agent distribution chart (using trace counts)
             const agentCtx = document.getElementById('agentDistributionChart').getContext('2d');
-             // Define consistent colors mapped to agent names if possible
-             const agentColors = {
-                'HCP_P': '#8ac926',
-                'SCOPING': '#1982c4',
-                'SYNAPSE': '#6a4c93',
-                'HASHTAG': '#ff595e',
-                'SURVEY_CODING': '#ffca3a',
-                // Add more agents and colors as needed
-                'default': '#adb5bd' // Fallback color
-             };
+            const agentColors = { 'HCP_P': '#8ac926', 'SCOPING': '#1982c4', 'SYNAPSE': '#6a4c93', 'HASHTAG': '#ff595e', 'SURVEY_CODING': '#ffca3a', 'DEFAULT': '#6c757d' };
             agentDistributionChart = new Chart(agentCtx, {
-                type: 'doughnut',
-                 data: {
-                     labels: [],
-                     datasets: [{
-                         data: [],
-                         backgroundColor: [], // Set dynamically
-                         borderWidth: 1,
-                         borderColor: '#fff' // Add white border for separation
-                     }]
-                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                     plugins: {
-                        legend: {
-                            position: 'right',
-                            labels: { boxWidth: 12 } // Smaller legend boxes
-                        },
-                        tooltip: {
-                             callbacks: {
-                                label: function(context) {
-                                    let label = context.label || '';
-                                    if (label) { label += ': '; }
-                                    const value = context.parsed;
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) + '%' : '0%';
-                                    if (value !== null) {
-                                        label += formatNumber(value) + ` (${percentage})`;
-                                    }
-                                    return label;
-                                }
-                            }
-                        }
-                    },
-                    cutout: '65%'
-                }
+                type: 'doughnut', data: { labels: [], datasets: [{ data: [], backgroundColor: [], borderWidth: 1, borderColor: '#fff' }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 12 } }, tooltip: { callbacks: {
+                        label: function(context) { let label = context.label || ''; if (label) label += ': '; const value = context.parsed; const total = context.dataset.data.reduce((a, b) => a + b, 0); const percentage = total > 0 ? ((value / total) * 100).toFixed(1) + '%' : '0%'; if (value !== null) label += formatNumber(value) + ` (${percentage})`; return label; }
+                    }}}, cutout: '65%' }
             });
-        }
-
-        function updateDailyUsageChart() {
-            const metricType = document.querySelector('#dailyChartMetricToggle .active')?.dataset.metric || 'tokens';
+         }
+        function updateDailyUsageChart() { /* ... (updateDailyUsageChart remains the same) ... */
+             const metricType = $('#dailyChartMetricToggle .active').data('metric') || 'tokens';
             const sourceData = filteredData.dailyMetrics ?? [];
-
-            // Aggregate data per date, summing across agents if 'all' selected, or showing individual lines
-             const aggregated = {}; // { date: { agent1: value, agent2: value, ... } }
-             const agents = new Set();
-             sourceData.forEach(item => {
-                 const date = item.date;
-                 const agent = item.agent;
-                 agents.add(agent);
-                 if (!aggregated[date]) aggregated[date] = { date: date };
-                 const value = metricType === 'cost' ? item.totalCost : item.totalTokens;
-                 aggregated[date][agent] = (aggregated[date][agent] || 0) + value;
-             });
-
-             const sortedDates = Object.keys(aggregated).sort();
-             const labels = sortedDates.map(date => formatDate(date, 'MMM D')); // Format date labels
-
-             const agentColors = { /* Keep your agentColors map */
-                 'HCP_P': '#8ac926', 'SCOPING': '#1982c4', 'SYNAPSE': '#6a4c93',
-                 'HASHTAG': '#ff595e', 'SURVEY_CODING': '#ffca3a', 'default': '#adb5bd'
-             };
-              const datasets = Array.from(agents).sort().map(agent => {
-                 const color = agentColors[agent.toUpperCase().replace(/[^A-Z0-9_]+/g, '')] || agentColors['default'];
-                 return {
-                     label: agent,
-                     data: sortedDates.map(date => aggregated[date][agent] || 0),
-                     borderColor: color,
-                     backgroundColor: color + '33', // Add alpha for fill
-                     borderWidth: 1.5,
-                     tension: 0.1,
-                     pointRadius: 1,
-                     pointHoverRadius: 4,
-                     fill: true
-                 };
-             });
-
+            const aggregated = {};
+            const agents = new Set(sourceData.map(item => item.agent));
+            sourceData.forEach(item => { const date = item.date; const agent = item.agent; if (!aggregated[date]) aggregated[date] = { date: date }; const value = metricType === 'cost' ? (item.totalCost || 0) : (item.totalTokens || 0); aggregated[date][agent] = (aggregated[date][agent] || 0) + value; });
+            const sortedDates = Object.keys(aggregated).sort();
+            const labels = sortedDates.map(date => formatDate(date, 'MMM D'));
+            const agentColors = { 'HCP_P': '#8ac926', 'SCOPING': '#1982c4', 'SYNAPSE': '#6a4c93', 'HASHTAG': '#ff595e', 'SURVEY_CODING': '#ffca3a', 'DEFAULT': '#6c757d' };
+             const datasets = Array.from(agents).sort().map(agent => { const colorKey = agent.toUpperCase().replace(/[^A-Z0-9]+/g, '_'); const color = agentColors[colorKey] || agentColors['DEFAULT']; return { label: agent, data: sortedDates.map(date => aggregated[date][agent] || 0), borderColor: color, backgroundColor: color + '33', borderWidth: 1.5, tension: 0.1, pointRadius: 1, pointHoverRadius: 4, fill: true }; });
             dailyUsageChart.data.labels = labels;
             dailyUsageChart.data.datasets = datasets;
             dailyUsageChart.options.scales.y.title.text = metricType === 'cost' ? 'Cost (USD)' : 'Tokens';
+             dailyUsageChart.options.scales.y.ticks.callback = function(value) { return metricType === 'cost' ? '$' + formatNumber(Math.round(value)) : formatNumber(value); };
             dailyUsageChart.update();
         }
-
-        function updateAgentDistributionChart() {
-            // Use filtered traces to count conversations per agent
+        function updateAgentDistributionChart() { /* ... (updateAgentDistributionChart remains the same) ... */
             const agentCounts = {};
-            filteredData.traces?.forEach(trace => {
-                const agent = trace.agent || 'Unknown';
-                agentCounts[agent] = (agentCounts[agent] || 0) + 1;
-            });
-
+            filteredData.traces?.forEach(trace => { const agent = trace.agent || 'Unknown'; agentCounts[agent] = (agentCounts[agent] || 0) + 1; });
             const sortedAgents = Object.entries(agentCounts).sort(([, countA], [, countB]) => countB - countA);
             const labels = sortedAgents.map(([agent]) => agent);
             const data = sortedAgents.map(([, count]) => count);
-
-             const agentColors = { /* Keep your agentColors map */
-                 'HCP_P': '#8ac926', 'SCOPING': '#1982c4', 'SYNAPSE': '#6a4c93',
-                 'HASHTAG': '#ff595e', 'SURVEY_CODING': '#ffca3a', 'default': '#adb5bd'
-             };
-             const backgroundColors = labels.map(label => agentColors[label.toUpperCase().replace(/[^A-Z0-9_]+/g, '')] || agentColors['default']);
-
-
+            const agentColors = { 'HCP_P': '#8ac926', 'SCOPING': '#1982c4', 'SYNAPSE': '#6a4c93', 'HASHTAG': '#ff595e', 'SURVEY_CODING': '#ffca3a', 'DEFAULT': '#6c757d' };
+             const backgroundColors = labels.map(label => { const colorKey = label.toUpperCase().replace(/[^A-Z0-9]+/g, '_'); return agentColors[colorKey] || agentColors['DEFAULT']; });
             agentDistributionChart.data.labels = labels;
             agentDistributionChart.data.datasets[0].data = data;
             agentDistributionChart.data.datasets[0].backgroundColor = backgroundColors;
@@ -964,461 +633,162 @@
         }
 
         // --- Table Rendering ---
-
-        function renderTable(tableId, data, columns, stateKey) {
-             const tableBody = document.querySelector(`#${tableId} tbody`);
-             const paginationContainer = document.getElementById(`${stateKey}-pagination`);
-             if (!tableBody || !paginationContainer) {
-                 console.error(`Table or pagination container not found for ${tableId}`);
-                 return;
-             }
-             showLoading(tableId); // Show loading specific to this table
-
-             tableBody.innerHTML = ''; // Clear existing rows
-             paginationContainer.innerHTML = ''; // Clear existing pagination
-
-             if (!data || data.length === 0) {
-                 tableBody.innerHTML = `<tr><td colspan="${columns.length}" class="text-center text-muted py-4">No data available for the selected filters.</td></tr>`;
-                 hideLoading(tableId);
-                 return;
-             }
-
-             // Apply Sorting
-            let sortedData = [...data]; // Create a copy
+        function renderTable(tableId, data, columns, stateKey) { /* ... (renderTable remains the same) ... */
+              const tableBody = $(`#${tableId} tbody`);
+             const paginationContainer = $(`#${stateKey}-pagination`);
+             if (!tableBody.length || !paginationContainer.length) return;
+             tableBody.empty(); paginationContainer.empty();
+             if (!data || data.length === 0) { tableBody.html(`<tr><td colspan="${columns.length}" class="text-center text-muted py-4">No data available for the selected filters.</td></tr>`); return; }
+             let sortedData = [...data];
             const { sortField, sortDirection } = tableState[stateKey];
-            if (sortField) {
-                 sortedData = sortData(sortedData, sortField, sortDirection);
-             }
-
-             // Apply Pagination
+            if (sortField) sortedData = sortData(sortedData, sortField, sortDirection);
             const { currentPage } = tableState[stateKey];
             const totalItems = sortedData.length;
-            const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
-             const start = (currentPage - 1) * ITEMS_PER_PAGE;
-             const paginatedData = sortedData.slice(start, start + ITEMS_PER_PAGE);
-
-             // Render Rows
+             const paginatedData = sortedData.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
              paginatedData.forEach(item => {
-                 const row = document.createElement('tr');
+                 const row = $('<tr>');
                  columns.forEach(column => {
-                     const cell = document.createElement('td');
-                     cell.innerHTML = column.render(item); // Use render function for content
-                     // Add CSS classes if defined
-                      if (column.cellClass) {
-                          // Can be a string or a function
-                          const classes = typeof column.cellClass === 'function'
-                              ? column.cellClass(item)
-                              : column.cellClass;
-                          if (classes) cell.className = classes;
-                      }
-                     row.appendChild(cell);
+                     const cell = $('<td>').html(column.render(item));
+                      if (column.cellClass) { const classes = typeof column.cellClass === 'function' ? column.cellClass(item) : column.cellClass; if (classes) cell.addClass(classes); }
+                     row.append(cell);
                  });
-                 tableBody.appendChild(row);
+                 tableBody.append(row);
              });
-
-             // Render Pagination Controls
-             setupPagination(paginationContainer.id, stateKey, totalItems, ITEMS_PER_PAGE, (newPage) => {
-                 tableState[stateKey].currentPage = newPage;
-                 renderTable(tableId, data, columns, stateKey); // Re-render the table for the new page
-             });
-
-              hideLoading(tableId); // Hide loading indicator
+             setupPagination(paginationContainer.attr('id'), stateKey, totalItems, ITEMS_PER_PAGE, (newPage) => { tableState[stateKey].currentPage = newPage; renderTable(tableId, data, columns, stateKey); });
          }
 
-         // Define columns for each table
-         const userColumns = [
+        // Define columns for each table
+        const userColumns = [ /* ... (userColumns remain the same) ... */
              { header: 'User ID', field: 'userId', render: item => item.userId || 'Unknown', cellClass: 'text-break' },
              { header: 'Total Conv.', field: 'totalTraces', render: item => formatNumber(item.totalTraces), cellClass: 'text-end' },
              { header: 'Agents Used', field: 'agents', sortable: false, render: item => (item.agents || []).map(agent => `<span class="badge badge-agent ${getAgentBadgeClass(agent)} me-1">${agent}</span>`).join(' ') },
-             { header: 'First Seen', field: 'firstSeen', render: item => formatDate(item.firstSeen) },
-             { header: 'Last Seen', field: 'lastSeen', render: item => formatDate(item.lastSeen) },
+             { header: 'First Seen', field: 'firstSeen', render: item => formatDateTime(item.firstSeen) },
+             { header: 'Last Seen', field: 'lastSeen', render: item => formatDateTime(item.lastSeen) },
              { header: 'Total Tokens', field: 'totalTokens', render: item => formatNumber(item.totalTokens), cellClass: 'text-end' },
              { header: 'Total Cost ($)', field: 'totalCost', render: item => formatCost(item.totalCost), cellClass: 'text-end' },
          ];
-         const conversationColumns = [
-             { header: 'Conv. ID', field: 'id', render: item => item.id?.substring(0, 8) + '...' || '-', cellClass: 'text-break' }, // Shorten ID
+        const conversationColumns = [
+             // ** Enhancement: Conversation ID Link (COMMENTED OUT) **
+             // { header: 'Conv. ID', field: 'id', render: item => item.id ? `<a href="${LANGFUSE_BASE_URL}/project/${item.projectId}/traces/${item.id}" target="_blank" title="${item.id}">${item.id.substring(0, 8)}...</a>` : '-', cellClass: 'text-break' },
+             { header: 'Conv. ID', field: 'id', render: item => item.id ? item.id.substring(0, 8)+'...' : '-', cellClass: 'text-break', title: item => item.id }, // Show full ID on hover
              { header: 'User', field: 'userId', render: item => item.userId || 'Unknown' },
              { header: 'Agent', field: 'agent', render: item => `<span class="badge badge-agent ${getAgentBadgeClass(item.agent)}">${item.agent || 'Unknown'}</span>` },
-             { header: 'Date', field: 'timestamp', render: item => formatDateTime(item.timestamp) },
-             { header: 'Messages', field: 'messageCount', render: item => formatNumber(item.messageCount), cellClass: 'text-end' },
+             { header: 'Start Time', field: 'startTime', render: item => formatDateTime(item.startTime) },
+             { header: 'End Time', field: 'endTime', render: item => formatDateTime(item.endTime) },
+             { header: 'Observations', field: 'messageCount', render: item => formatNumber(item.messageCount), cellClass: 'text-end' },
              { header: 'Tokens', field: 'totalTokens', render: item => formatNumber(item.totalTokens), cellClass: 'text-end' },
              { header: 'Cost ($)', field: 'totalCost', render: item => formatCost(item.totalCost), cellClass: 'text-end' },
          ];
-         const sessionColumns = [
-             { header: 'Session ID', field: 'id', render: item => item.id?.substring(0, 8) + '...' || '-', cellClass: 'text-break' },
+        const sessionColumns = [
+            // ** Enhancement: Session ID Link (COMMENTED OUT) **
+             // { header: 'Session ID', field: 'id', render: item => item.id ? `<a href="${LANGFUSE_BASE_URL}/project/${item.projectId}/sessions/${item.id}" target="_blank" title="${item.id}">${item.id.substring(0, 8)}...</a>` : '-', cellClass: 'text-break' },
+             { header: 'Session ID', field: 'id', render: item => item.id ? item.id.substring(0, 8)+'...' : '-', cellClass: 'text-break', title: item => item.id }, // Show full ID on hover
              { header: 'User', field: 'userId', render: item => item.userId || 'Unknown' },
              { header: 'Agent', field: 'agent', render: item => `<span class="badge badge-agent ${getAgentBadgeClass(item.agent)}">${item.agent || 'Unknown'}</span>` },
-             { header: 'Start Time', field: 'createdAt', render: item => formatDateTime(item.createdAt) },
+             { header: 'Start Time', field: 'startTime', render: item => formatDateTime(item.startTime) },
+             { header: 'End Time', field: 'endTime', render: item => formatDateTime(item.endTime) },
              { header: 'Duration', field: 'durationSeconds', render: item => formatDuration(item.durationSeconds), cellClass: 'text-end' },
              { header: 'Conv.', field: 'traceCount', render: item => formatNumber(item.traceCount), cellClass: 'text-end' },
              { header: 'Tokens', field: 'totalTokens', render: item => formatNumber(item.totalTokens), cellClass: 'text-end' },
              { header: 'Cost ($)', field: 'totalCost', render: item => formatCost(item.totalCost), cellClass: 'text-end' },
          ];
-          const agentColumns = [
+         const agentColumns = [ /* ... (agentColumns remain the same) ... */
              { header: 'Agent', field: 'agent', render: item => `<span class="badge badge-agent ${getAgentBadgeClass(item.agent)} me-1">${item.agent}</span>` },
              { header: 'Total Users', field: 'totalUsers', render: item => formatNumber(item.totalUsers), cellClass: 'text-end' },
              { header: 'Total Conv.', field: 'countTraces', render: item => formatNumber(item.countTraces), cellClass: 'text-end' },
-             { header: 'Avg Msgs/Conv', field: 'avgMessagesPerConv', render: item => item.avgMessagesPerConv?.toFixed(1) ?? '-', cellClass: 'text-end' },
+             { header: 'Avg Obs/Conv', field: 'avgMessagesPerConv', render: item => item.avgMessagesPerConv?.toFixed(1) ?? '-', cellClass: 'text-end' },
              { header: 'Total Tokens', field: 'totalTokens', render: item => formatNumber(item.totalTokens), cellClass: 'text-end' },
              { header: 'Total Cost ($)', field: 'totalCost', render: item => formatCost(item.totalCost), cellClass: 'text-end' },
          ];
-         const modelColumns = [
-             { header: 'Model Name', field: 'model', render: item => item.model || 'Unknown', cellClass: 'text-break' },
+         const modelColumns = [ /* ... (modelColumns remain the same) ... */
+             { header: 'Model Name', field: 'model', render: item => item.model || 'Unknown', cellClass: 'text-start' },
+             { header: 'Observations', field: 'observationCount', render: item => formatNumber(item.observationCount), cellClass: 'text-end' },
              { header: 'Total Tokens', field: 'totalTokens', render: item => formatNumber(item.totalTokens), cellClass: 'text-end' },
              { header: 'Total Cost ($)', field: 'totalCost', render: item => formatCost(item.totalCost), cellClass: 'text-end' },
          ];
 
-
-         // Update tables based on the currently active tab
-         function updateActiveTable() {
-             const activeTabButton = document.querySelector('#dataTabs .nav-link.active');
-             if (!activeTabButton) return;
-             const targetPaneId = activeTabButton.getAttribute('data-bs-target'); // e.g., #user-data
-
+        // Update tables based on the currently active tab
+         function updateActiveTable() { /* ... (updateActiveTable remains the same) ... */
+              const activeTabButton = $('#dataTabs .nav-link.active');
+             if (!activeTabButton.length) return;
+             const targetPaneId = activeTabButton.attr('data-bs-target');
              switch (targetPaneId) {
-                 case '#user-data':
-                     renderTable('userTable', filteredData.userMetrics, userColumns, 'user');
+                 case '#user-data': renderTable('userTable', filteredData.userMetrics, userColumns, 'user'); break;
+                 case '#conversation-data': renderTable('conversationTable', filteredData.traces, conversationColumns, 'conversation'); break;
+                 case '#session-data': renderTable('sessionTable', filteredData.sessions, sessionColumns, 'session'); break;
+                 case '#agent-data': 
+                     console.log("Rendering agent table with data:", filteredData.agentComparison); 
+                     renderTable('agentTable', filteredData.agentComparison, agentColumns, 'agent'); 
                      break;
-                 case '#conversation-data':
-                     renderTable('conversationTable', filteredData.traces, conversationColumns, 'conversation');
-                     break;
-                 case '#session-data':
-                     renderTable('sessionTable', filteredData.sessions, sessionColumns, 'session');
-                     break;
-                 case '#agent-data':
-                     // Prepare agent summary data before rendering
-                      const agentSummaryData = prepareAgentSummaryData();
-                     renderTable('agentTable', agentSummaryData, agentColumns, 'agent');
-                     break;
-                 case '#model-data':
-                      renderTable('modelTable', filteredData.modelUsage, modelColumns, 'model');
-                     break;
+                 case '#model-data': renderTable('modelTable', filteredData.modelUsage, modelColumns, 'model'); break;
              }
-         }
-
-          // Helper function to prepare data for the Agent Summary table
-          function prepareAgentSummaryData() {
-                if (!allData || !allData.agentComparison) return [];
-
-                 const agentSummary = {};
-
-                 // Initialize with basic info from agentComparison (trace counts)
-                (allData.agentComparison ?? []).forEach(comp => {
-                    agentSummary[comp.agent] = {
-                         agent: comp.agent,
-                         countTraces: comp.countTraces || 0,
-                         totalUsers: 0,
-                         avgMessagesPerConv: 0,
-                         totalTokens: 0,
-                         totalCost: 0.0,
-                         _traceIds: new Set(), // Temp storage for avg calc
-                         _userIds: new Set() // Temp storage for user count
-                     };
-                });
-
-                 // Aggregate from daily metrics (more reliable for cost/tokens)
-                 // Use *filtered* daily metrics to reflect date range
-                (filteredData.dailyMetrics ?? []).forEach(metric => {
-                     if (agentSummary[metric.agent]) {
-                         agentSummary[metric.agent].totalTokens += metric.totalTokens || 0;
-                         agentSummary[metric.agent].totalCost += metric.totalCost || 0.0;
-                     }
-                 });
-
-                 // Aggregate users and trace details from *filtered* traces
-                 let totalMessages = 0;
-                 let totalTraceCountForAvg = 0;
-                 (filteredData.traces ?? []).forEach(trace => {
-                     if (agentSummary[trace.agent]) {
-                         agentSummary[trace.agent]._userIds.add(trace.userId);
-                         agentSummary[trace.agent]._traceIds.add(trace.id);
-                         // Sum messages only from traces belonging to this agent
-                         totalMessages += trace.messageCount || 0;
-                         totalTraceCountForAvg++; // Count traces with potential messages
-                     }
-                 });
-
-                 // Finalize calculations for each agent
-                 Object.values(agentSummary).forEach(summary => {
-                     summary.totalUsers = summary._userIds.size;
-                     const agentTraceCount = summary._traceIds.size; // Use actual count of filtered traces for the agent
-                     const agentTotalMessages = (filteredData.traces ?? [])
-                        .filter(t => t.agent === summary.agent)
-                        .reduce((sum, t) => sum + (t.messageCount || 0), 0);
-
-                     summary.avgMessagesPerConv = agentTraceCount > 0 ? (agentTotalMessages / agentTraceCount) : 0;
-
-                     // Update countTraces to reflect filtered count if desired, or keep total from agentComparison
-                     // Let's keep the total from agentComparison for now, showing overall agent popularity
-                     // summary.countTraces = agentTraceCount; // Uncomment to show filtered trace count
-
-                     delete summary._traceIds; // Clean up temp storage
-                     delete summary._userIds; // Clean up temp storage
-                 });
-
-
-                 return Object.values(agentSummary);
-            }
-
+          }
 
         // --- Sorting and Pagination Utilities ---
-
-        function sortData(data, field, direction = 'asc') {
-            // Find the column definition to check for custom sort function
-            // This requires knowing which column set we are sorting (user, conv, etc.)
-            // For now, implement generic sort
-            return [...data].sort((a, b) => {
-                let aVal = a[field];
-                let bVal = b[field];
-
-                // Handle different data types
-                 if (aVal instanceof Date && bVal instanceof Date) {
-                     aVal = aVal.getTime();
-                     bVal = bVal.getTime();
-                 } else if (typeof aVal === 'string' && typeof bVal === 'string') {
-                     aVal = aVal.toLowerCase();
-                     bVal = bVal.toLowerCase();
-                 } else if (Array.isArray(aVal) && Array.isArray(bVal)) {
-                    // Basic array sort (e.g., agents) - sort by length or first element
-                    aVal = aVal.length;
-                    bVal = bVal.length;
-                 }
-                 // Handle null or undefined values (treat them as lowest)
-                 const aIsNull = aVal === null || aVal === undefined;
-                 const bIsNull = bVal === null || bVal === undefined;
-                 if (aIsNull && bIsNull) return 0;
-                 if (aIsNull) return direction === 'asc' ? -1 : 1;
-                 if (bIsNull) return direction === 'asc' ? 1 : -1;
-
-
-                if (aVal < bVal) return direction === 'asc' ? -1 : 1;
-                if (aVal > bVal) return direction === 'asc' ? 1 : -1;
-                return 0;
+        function sortData(data, field, direction = 'asc') { /* ... (sortData remains the same) ... */
+             return [...data].sort((a, b) => {
+                let aVal = a[field]; let bVal = b[field];
+                 if (aVal instanceof Date && bVal instanceof Date) { aVal = aVal.getTime(); bVal = bVal.getTime(); }
+                 const aIsNull = aVal === null || aVal === undefined; const bIsNull = bVal === null || bVal === undefined;
+                 if (aIsNull && bIsNull) return 0; if (aIsNull) return direction === 'asc' ? -1 : 1; if (bIsNull) return direction === 'asc' ? 1 : -1;
+                 if (typeof aVal === 'string' && typeof bVal === 'string') { aVal = aVal.toLowerCase(); bVal = bVal.toLowerCase(); }
+                 else if (Array.isArray(aVal) && Array.isArray(bVal)) { aVal = aVal.length; bVal = bVal.length; }
+                if (aVal < bVal) return direction === 'asc' ? -1 : 1; if (aVal > bVal) return direction === 'asc' ? 1 : -1; return 0;
             });
-        }
-
-        // Setup table sorting listeners
-        function setupTableSorting(tableId, stateKey, columns) {
-            const table = document.getElementById(tableId);
-            if (!table) return;
-            const headers = table.querySelectorAll('thead th[data-field]'); // Only target headers with data-field
-
+         }
+        function setupTableSorting(tableId, stateKey, columns) { /* ... (setupTableSorting remains the same) ... */
+             const table = document.getElementById(tableId); if (!table) return; const headers = table.querySelectorAll('thead th[data-field]');
             headers.forEach(header => {
-                 // Check if column is explicitly marked as non-sortable
-                 const columnDef = columns.find(c => c.field === header.dataset.field);
-                 if (columnDef && columnDef.sortable === false) {
-                    header.style.cursor = 'default'; // Remove pointer cursor
-                    return; // Skip adding listener
-                 }
-
-
-                header.style.cursor = 'pointer'; // Add pointer cursor
+                 const columnDef = columns.find(c => c.field === header.dataset.field); if (columnDef && columnDef.sortable === false) { header.style.cursor = 'default'; return; }
+                header.style.cursor = 'pointer';
                 header.addEventListener('click', () => {
-                    const field = header.dataset.field;
-                    let newDir = 'asc';
-
-                    // Clear existing sort indicators from all headers in this table
+                    const field = header.dataset.field; let newDir = 'asc';
                     table.querySelectorAll('thead th[data-field]').forEach(h => h.classList.remove('sorting-asc', 'sorting-desc'));
-
-                    // Determine new sort direction
-                    if (tableState[stateKey].sortField === field) {
-                        newDir = tableState[stateKey].sortDirection === 'asc' ? 'desc' : 'asc';
-                    }
-
-                    // Update state
-                    tableState[stateKey].sortField = field;
-                    tableState[stateKey].sortDirection = newDir;
-                    tableState[stateKey].currentPage = 1; // Reset to first page
-
-                    // Add new sort indicator
-                    header.classList.add(newDir === 'asc' ? 'sorting-asc' : 'sorting-desc');
-
-                     logFrontendEvent(`Sorting table ${tableId} by ${field} (${newDir})`);
-                    // Re-render the active table with new sorting
-                    updateActiveTable();
+                    if (tableState[stateKey].sortField === field) newDir = tableState[stateKey].sortDirection === 'asc' ? 'desc' : 'asc';
+                    tableState[stateKey].sortField = field; tableState[stateKey].sortDirection = newDir; tableState[stateKey].currentPage = 1;
+                    header.classList.add(newDir === 'asc' ? 'sorting-asc' : 'sorting-desc'); logFrontendEvent(`Sorting table ${tableId} by ${field} (${newDir})`); updateActiveTable();
                 });
-                 // Add initial sort indicator based on default state
-                 if (tableState[stateKey].sortField === header.dataset.field) {
-                     header.classList.add(tableState[stateKey].sortDirection === 'asc' ? 'sorting-asc' : 'sorting-desc');
-                 }
+                 if (tableState[stateKey].sortField === header.dataset.field) header.classList.add(tableState[stateKey].sortDirection === 'asc' ? 'sorting-asc' : 'sorting-desc');
             });
-        }
-
-        // Setup pagination controls
-        function setupPagination(containerId, stateKey, totalItems, itemsPerPage, onPageChange) {
-             const container = document.getElementById(containerId);
-             if (!container) return;
-             container.innerHTML = ''; // Clear previous controls
-
-             if (totalItems <= itemsPerPage) return; // No pagination needed if fits on one page
-
-            const template = document.getElementById('paginationTemplate');
-            if (!template) return; // Ensure template exists
-            const paginationControls = template.content.cloneNode(true);
-
-
-            const totalPages = Math.ceil(totalItems / itemsPerPage);
-            const currentPage = tableState[stateKey].currentPage;
-            const startItem = (currentPage - 1) * itemsPerPage + 1;
-            const endItem = Math.min(startItem + itemsPerPage - 1, totalItems);
-
-            // Update showing info
-            paginationControls.querySelector('.showing-start').textContent = formatNumber(startItem);
-            paginationControls.querySelector('.showing-end').textContent = formatNumber(endItem);
-            paginationControls.querySelector('.total-items').textContent = formatNumber(totalItems);
-
-            // Setup buttons
-            const prevBtn = paginationControls.querySelector('.prev-page');
-            const nextBtn = paginationControls.querySelector('.next-page');
-
-            prevBtn.disabled = currentPage === 1;
-            nextBtn.disabled = currentPage === totalPages;
-
-            prevBtn.addEventListener('click', () => onPageChange(currentPage - 1));
-            nextBtn.addEventListener('click', () => onPageChange(currentPage + 1));
-
-            container.appendChild(paginationControls);
-        }
-
+         }
+        function setupPagination(containerId, stateKey, totalItems, itemsPerPage, onPageChange) { /* ... (setupPagination remains the same) ... */
+              const container = $(`#${containerId}`); container.empty(); if (totalItems <= itemsPerPage) return;
+            const template = $('#paginationTemplate'); const paginationControls = $(template.html());
+            const totalPages = Math.ceil(totalItems / itemsPerPage); const currentPage = tableState[stateKey].currentPage;
+            const startItem = (currentPage - 1) * itemsPerPage + 1; const endItem = Math.min(startItem + itemsPerPage - 1, totalItems);
+            paginationControls.find('.showing-start').text(formatNumber(startItem)); paginationControls.find('.showing-end').text(formatNumber(endItem)); paginationControls.find('.total-items').text(formatNumber(totalItems));
+            const prevBtn = paginationControls.find('.prev-page'); const nextBtn = paginationControls.find('.next-page');
+            prevBtn.prop('disabled', currentPage === 1); nextBtn.prop('disabled', currentPage === totalPages);
+            prevBtn.on('click', () => onPageChange(currentPage - 1)); nextBtn.on('click', () => onPageChange(currentPage + 1));
+            container.append(paginationControls);
+         }
 
         // --- Event Listeners ---
+        function initializeDateRangePicker() { /* ... (initializeDateRangePicker remains the same) ... */
+             $('#dateRangeFilter').daterangepicker({
+                startDate: moment().subtract(30, 'days'), endDate: moment(), opens: 'left', locale: { format: 'YYYY-MM-DD' },
+                ranges: { 'Today': [moment(), moment()], 'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')], 'Last 7 Days': [moment().subtract(6, 'days'), moment()], 'Last 30 Days': [moment().subtract(29, 'days'), moment()], 'This Month': [moment().startOf('month'), moment().endOf('month')], 'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')] }
+            }, function(start, end, label) { logFrontendEvent(`Date range changed: ${start.format('YYYY-MM-DD')} to ${end.format('YYYY-MM-DD')}`); applyFiltersAndRefresh(); });
+         }
+        function updateLastDataFetch(success = true) { /* ... (updateLastDataFetch remains the same) ... */
+              const display = $('#lastDataFetch');
+            if (success && lastDataFetchTime === null) { lastDataFetchTime = new Date(); localStorage.setItem('dashboardLastDataFetch', lastDataFetchTime.toISOString()); }
+            else if (!success && lastDataFetchTime === null) { const storedTime = localStorage.getItem('dashboardLastDataFetch'); if (storedTime) lastDataFetchTime = new Date(storedTime); }
+            if (lastDataFetchTime) { display.text(`Data last refreshed: ${moment(lastDataFetchTime).fromNow()}`); display.attr('title', lastDataFetchTime.toLocaleString()); display.removeClass('text-danger'); }
+            else { display.text('Data refresh status unknown.'); display.addClass('text-danger'); }
+         }
 
-        // Initialize date range picker
-        function initializeDateRangePicker() {
-            $('#dateRangeFilter').daterangepicker({
-                startDate: moment().subtract(30, 'days'),
-                endDate: moment(),
-                opens: 'left',
-                 locale: { format: 'YYYY-MM-DD' }, // Match Python date format if needed
-                ranges: {
-                   'Today': [moment(), moment()],
-                   'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                   'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                   'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-                   'This Month': [moment().startOf('month'), moment().endOf('month')],
-                   'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-                }
-            }, function(start, end, label) {
-                // Apply filters when date range changes
-                 logFrontendEvent(`Date range changed: ${start.format('YYYY-MM-DD')} to ${end.format('YYYY-MM-DD')}`);
-                 applyFiltersAndRefresh();
-            });
-        }
-
-        // Update last data fetch timestamp display
-        function updateLastDataFetch(success = true) {
-             const display = document.getElementById('lastDataFetch');
-             if (!display) return;
-
-            if (success) {
-                lastDataFetchTime = new Date();
-                localStorage.setItem('dashboardLastDataFetch', lastDataFetchTime.toISOString());
-            } else {
-                 // If fetch failed, try to load last known good time
-                 const storedTime = localStorage.getItem('dashboardLastDataFetch');
-                 if (storedTime) {
-                     lastDataFetchTime = new Date(storedTime);
-                 } else {
-                     lastDataFetchTime = null; // No known good fetch time
-                 }
-            }
-
-            if (lastDataFetchTime) {
-                 display.textContent = `Data last refreshed: ${moment(lastDataFetchTime).fromNow()}`;
-                 display.title = lastDataFetchTime.toLocaleString(); // Show full time on hover
-                 display.classList.remove('text-danger');
-            } else {
-                 display.textContent = 'Data refresh status unknown.';
-                 display.classList.add('text-danger');
-            }
-        }
-
-         // Initial setup on DOMContentLoaded
-        document.addEventListener('DOMContentLoaded', function() {
-             initializeCharts();
-             initializeDateRangePicker();
-             updateLastDataFetch(false); // Initialize display, assuming no fetch yet
-
-             // Load initial data
-             loadAllData(); // This now handles filtering and initial UI update
-
-             // Filter apply button listener
-             document.getElementById('applyFiltersButton').addEventListener('click', applyFiltersAndRefresh);
-
-              // Manual Refresh button listener
-             document.getElementById('fetchLatestButton').addEventListener('click', function() {
-                const btn = this;
-                btn.disabled = true;
-                btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Refreshing...';
-                logFrontendEvent('Manual data refresh requested...');
-
-                // Simple approach: just reload all data
-                loadAllData().finally(() => {
-                     btn.disabled = false;
-                     btn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh Data';
-                 });
-
-                // More advanced: Call a backend endpoint to trigger python script
-                /*
-                fetch('/api/refresh-data', { method: 'POST' })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            logFrontendEvent('Backend data fetch successful, reloading dashboard data...');
-                            loadAllData(); // Reload data after backend script runs
-                        } else {
-                            logFrontendEvent('Backend data fetch failed: ' + (data.error || 'Unknown error'));
-                            alert('Backend data fetch failed: ' + (data.error || 'Unknown error'));
-                            updateLastDataFetch(false); // Indicate failure
-                        }
-                    })
-                    .catch(err => {
-                        logFrontendEvent('Error calling backend refresh: ' + err);
-                        alert('Error triggering data refresh: ' + err);
-                         updateLastDataFetch(false); // Indicate failure
-                    })
-                    .finally(() => {
-                        btn.disabled = false;
-                        btn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh Data';
-                    });
-                 */
-            });
-
-             // Chart metric toggle listener
-             document.getElementById('dailyChartMetricToggle').addEventListener('click', (event) => {
-                if (event.target.tagName === 'BUTTON') {
-                    // Remove active class from all buttons in group
-                    event.target.parentElement.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
-                    // Add active class to the clicked button
-                    event.target.classList.add('active');
-                    // Update the chart
-                    updateDailyUsageChart();
-                }
-            });
-
-
-             // Tab change listener - re-render table for the activated tab
-             document.querySelectorAll('#dataTabs button[data-bs-toggle="tab"]').forEach(button => {
-                button.addEventListener('shown.bs.tab', function (event) {
-                    logFrontendEvent(`Tab switched to: ${event.target.id}`);
-                    tableState[event.target.id.split('-')[0]].currentPage = 1; // Reset page on tab switch
-                    updateActiveTable(); // Render the newly shown table
-                });
-             });
-
-             // Setup sorting listeners after initial data load populates headers
-             // Delay slightly or call after table rendering? Let's call after loadAllData completes.
-             // Moved setupTableSorting calls inside loadAllData's success path might be safer.
-             // For now, call here assuming headers are static.
-             setupTableSorting('userTable', 'user', userColumns);
-             setupTableSorting('conversationTable', 'conversation', conversationColumns);
-             setupTableSorting('sessionTable', 'session', sessionColumns);
-             setupTableSorting('agentTable', 'agent', agentColumns);
-             setupTableSorting('modelTable', 'model', modelColumns);
-
-             // Periodically update the "last fetched" timestamp display
-             setInterval(() => updateLastDataFetch(true), 60 * 1000); // Update every minute
-
+         // --- Initial Setup ---
+        $(document).ready(function() { /* ... (document.ready remains the same) ... */
+             initializeCharts(); initializeDateRangePicker(); updateLastDataFetch(false);
+             loadAllData();
+             $('#agentFilter').on('change', function() { logFrontendEvent(`Agent filter changed: ${$(this).val()}`); populateUserFilter(); applyFiltersAndRefresh(); });
+             $('#userFilter').on('change', function() { logFrontendEvent(`User filter changed: ${$(this).val()}`); applyFiltersAndRefresh(); });
+              $('#fetchLatestButton').on('click', function() { const btn = $(this); btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Refreshing...'); logFrontendEvent('Manual refresh...'); lastDataFetchTime = null; loadAllData().finally(() => { btn.prop('disabled', false).html('<i class="fas fa-sync-alt"></i> Refresh Data'); }); });
+             $('#dailyChartMetricToggle').on('click', 'button', function() { $(this).addClass('active').siblings().removeClass('active'); updateDailyUsageChart(); });
+             $('#dataTabs button[data-bs-toggle="tab"]').on('shown.bs.tab', function (event) { const targetTabId = $(event.target).attr('id').split('-')[0]; logFrontendEvent(`Tab switched to: ${targetTabId}`); if (tableState[targetTabId]) tableState[targetTabId].currentPage = 1; else console.warn(`State not found for tab: ${targetTabId}`); updateActiveTable(); });
+             setTimeout(() => { setupTableSorting('userTable', 'user', userColumns); setupTableSorting('conversationTable', 'conversation', conversationColumns); setupTableSorting('sessionTable', 'session', sessionColumns); setupTableSorting('agentTable', 'agent', agentColumns); setupTableSorting('modelTable', 'model', modelColumns); }, 500);
+             setInterval(() => updateLastDataFetch(true), 60 * 1000);
         });
 
     </script>
