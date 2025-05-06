@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Langfuse Usage Dashboard</title>
+    <title>Galen Usage Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
@@ -12,39 +12,278 @@
     <link href="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        /* Theme Variables */
         :root {
+            /* Light Theme (default) */
             --primary-color: #4361ee;
             --secondary-color: #3f37c9;
             --accent-color: #4895ef;
-            --text-color: #333;
-            --light-bg: #f8f9fa;
+            --text-color: #343a40;
+            --body-bg: #f5f7fb;
+            --card-bg: #ffffff;
             --border-color: #dee2e6;
+            --border-hover: #adb5bd;
+            --header-bg: #ffffff;
+            --header-text: #343a40;
+            --nav-tab-active-color: var(--primary-color);
+            --nav-tab-color: #495057;
+            --metric-value-color: var(--primary-color);
+            --metric-label-color: #6c757d;
+            --table-header-bg: #f8f9fa;
+            --table-row-hover: rgba(0, 0, 0, 0.05);
+            --toast-bg: #ffffff;
+            --chart-grid-color: rgba(0, 0, 0, 0.1);
+            --filter-container-bg: #ffffff;
+            --shadow-color: rgba(0, 0, 0, 0.05);
+            --toast-shadow: rgba(0, 0, 0, 0.1);
+            --tooltip-bg: #343a40;
+            --tooltip-color: #ffffff;
+            --dashboard-padding: 20px;
+            --btn-outline-hover-bg: #f1f3f9;
+            --link-color: #4361ee;
+            --link-hover-color: #3f37c9;
         }
-        body { font-family: 'Segoe UI', 'Roboto', sans-serif; background-color: #f5f7fb; color: var(--text-color); }
-        .dashboard-header { background-color: white; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-bottom: 1px solid var(--border-color); }
-        .card { border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; border: none; transition: all 0.3s ease; }
-        .card:hover { box-shadow: 0 8px 15px rgba(0,0,0,0.1); transform: translateY(-2px); }
-        .card-header { background-color: white; border-bottom: 1px solid var(--border-color); font-weight: 600; padding: 15px 20px; border-top-left-radius: 10px !important; border-top-right-radius: 10px !important; }
+
+        /* Dark Theme */
+        html[data-theme="dark"] {
+            --primary-color: #5e72e4;
+            --secondary-color: #5e60ce;
+            --accent-color: #7987e9;
+            --text-color: #e9ecef;
+            --body-bg: #1a1d21;
+            --card-bg: #272a30;
+            --border-color: #3b3f46;
+            --border-hover: #6c757d;
+            --header-bg: #23262c;
+            --header-text: #e9ecef;
+            --nav-tab-active-color: var(--primary-color);
+            --nav-tab-color: #ced4da;
+            --metric-value-color: #82bafc;
+            --metric-label-color: #adb5bd;
+            --table-header-bg: #23262c;
+            --table-row-hover: rgba(255, 255, 255, 0.08);
+            --toast-bg: #272a30;
+            --chart-grid-color: rgba(255, 255, 255, 0.1);
+            --filter-container-bg: #272a30;
+            --shadow-color: rgba(0, 0, 0, 0.15);
+            --toast-shadow: rgba(0, 0, 0, 0.5);
+            --tooltip-bg: #e9ecef;
+            --tooltip-color: #1a1d21;
+            --dashboard-padding: 20px;
+            --btn-outline-hover-bg: #32353b;
+            --link-color: #82bafc;
+            --link-hover-color: #a3cfff;
+        }
+
+        /* Apply theme variables */
+        body { 
+            font-family: 'Segoe UI', 'Roboto', sans-serif; 
+            background-color: var(--body-bg); 
+            color: var(--text-color); 
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Fix hover states for dark mode */
+        html[data-theme="dark"] .btn:hover {
+            color: #fff;
+        }
+        
+        html[data-theme="dark"] .btn-outline-secondary:hover {
+            background-color: var(--btn-outline-hover-bg);
+            color: #fff;
+            border-color: var(--border-hover);
+        }
+        
+        html[data-theme="dark"] .btn-outline-primary:hover {
+            color: #fff;
+        }
+        
+        html[data-theme="dark"] .dropdown-item:hover {
+            color: #fff;
+            background-color: var(--btn-outline-hover-bg);
+        }
+        
+        html[data-theme="dark"] a:hover {
+            color: var(--primary-color);
+        }
+        
+        /* Ensure hover states for all buttons maintain proper contrast */
+        .btn:hover {
+            color: inherit;
+        }
+
+        /* Specific colors for outline buttons in dark theme */
+        html[data-theme="dark"] .btn-outline-primary {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        html[data-theme="dark"] .btn-outline-primary:hover {
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+        
+        html[data-theme="dark"] .btn-success {
+            background-color: #198754;
+            border-color: #198754;
+        }
+        
+        html[data-theme="dark"] .btn-success:hover {
+            background-color: #157347;
+            border-color: #146c43;
+        }
+
+        .dashboard-header { 
+            background-color: var(--header-bg); 
+            padding: var(--dashboard-padding); 
+            box-shadow: 0 2px 4px var(--shadow-color); 
+            border-bottom: 1px solid var(--border-color); 
+            color: var(--header-text);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .card { 
+            border-radius: 10px; 
+            box-shadow: 0 4px 6px var(--shadow-color); 
+            margin-bottom: 20px; 
+            border: none; 
+            transition: all 0.3s ease; 
+            background-color: var(--card-bg);
+            color: var(--text-color);
+        }
+        .card:hover { 
+            box-shadow: 0 8px 15px var(--shadow-color); 
+            transform: translateY(-2px); 
+        }
+        .card-header { 
+            background-color: var(--card-bg); 
+            border-bottom: 1px solid var(--border-color); 
+            font-weight: 600; 
+            padding: 15px 20px; 
+            border-top-left-radius: 10px !important; 
+            border-top-right-radius: 10px !important; 
+            color: var(--text-color);
+        }
         .metric-card .card-body { padding: 25px; }
-        .metric-value { font-size: 32px; font-weight: 700; margin-bottom: 5px; color: var(--primary-color); }
-        .metric-label { font-size: 14px; color: #6c757d; margin-bottom: 0; }
-        .filter-container { background-color: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .metric-value { 
+            font-size: 32px; 
+            font-weight: 700; 
+            margin-bottom: 5px; 
+            color: var(--metric-value-color); 
+        }
+        .metric-label { 
+            font-size: 14px; 
+            color: var(--metric-label-color); 
+            margin-bottom: 0; 
+        }
+        .filter-container { 
+            background-color: var(--filter-container-bg); 
+            padding: 15px; 
+            border-radius: 10px; 
+            box-shadow: 0 2px 4px var(--shadow-color); 
+            margin-bottom: 20px; 
+            transition: background-color 0.3s ease;
+        }
         .tab-content { padding: 20px 0; }
         .tab-pane { animation: fadeIn 0.5s; }
-        .nav-tabs .nav-link { color: #495057; font-weight: 500; border: none; padding: 10px 15px; }
-        .nav-tabs .nav-link.active { color: var(--primary-color); border-bottom: 3px solid var(--primary-color); background-color: transparent; }
-        .table { border-collapse: separate; border-spacing: 0; width: 100%; }
-        .table th { background-color: #f8f9fa; font-weight: 600; white-space: nowrap; }
-        .table td, .table th { padding: 12px 15px; vertical-align: middle; }
+        .nav-tabs .nav-link { 
+            color: var(--nav-tab-color); 
+            font-weight: 500; 
+            border: none; 
+            padding: 10px 15px; 
+            transition: color 0.3s ease;
+        }
+        .nav-tabs .nav-link.active { 
+            color: var(--nav-tab-active-color); 
+            border-bottom: 3px solid var(--nav-tab-active-color); 
+            background-color: transparent; 
+        }
+        .table { 
+            border-collapse: separate; 
+            border-spacing: 0; 
+            width: 100%;
+            color: var(--text-color);
+        }
+        .table th { 
+            background-color: var(--table-header-bg); 
+            font-weight: 600; 
+            white-space: nowrap;
+            color: var(--text-color);
+        }
+        .table td, .table th { 
+            padding: 12px 15px; 
+            vertical-align: middle; 
+            border-color: var(--border-color);
+        }
+        .table-hover tbody tr:hover {
+            background-color: var(--table-row-hover);
+            color: var(--text-color);
+        }
+        /* Fix dark mode hover table text */
+        html[data-theme="dark"] .table-hover tbody tr:hover {
+            color: var(--text-color) !important;
+        }
+        /* Fix Langfuse button styling */
+        .btn-outline-secondary.langfuse-btn {
+            text-decoration: none !important;
+        }
+        .btn-outline-secondary.langfuse-btn:hover {
+            text-decoration: none !important;
+        }
+        html[data-theme="light"] .btn-outline-secondary.langfuse-btn {
+            background-color: transparent;
+            border-color: var(--border-color);
+        }
+        html[data-theme="light"] .btn-outline-secondary.langfuse-btn:hover {
+            background-color: #f0e6d7;
+            border-color: #d3c4ad;
+            color: var(--text-color);
+        }
+        html[data-theme="dark"] .btn-outline-secondary.langfuse-btn {
+            color: var(--text-color);
+        }
+        html[data-theme="dark"] .btn-outline-secondary.langfuse-btn:hover {
+            color: var(--text-color);
+            text-decoration: none;
+        }
         #userTable td:nth-child(1),
         #conversationTable td:nth-child(1),
         #sessionTable td:nth-child(1),
         #modelTable td:nth-child(1) { word-break: break-all; } /* Allow long IDs/names to wrap */
-        .loader { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary-color); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 20px auto; }
+        .loader { 
+            border: 4px solid var(--border-color); 
+            border-top: 4px solid var(--primary-color); 
+            border-radius: 50%; 
+            width: 30px; 
+            height: 30px; 
+            animation: spin 1s linear infinite; 
+            margin: 20px auto; 
+        }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .daterangepicker { font-family: 'Segoe UI', 'Roboto', sans-serif; }
-        #dateRangeFilter { background-color: white; border: 1px solid var(--border-color); cursor: pointer; padding: 8px 12px; border-radius: 5px; }
+        .daterangepicker { 
+            font-family: 'Segoe UI', 'Roboto', sans-serif;
+            border-color: var(--border-color);
+        }
+        .daterangepicker .calendar-table {
+            background-color: var(--card-bg);
+            border-color: var(--border-color);
+        }
+        .daterangepicker .calendar-table th,
+        .daterangepicker .calendar-table td {
+            color: var(--text-color);
+        }
+        .daterangepicker .drp-buttons {
+            border-color: var(--border-color);
+        }
+        #dateRangeFilter { 
+            background-color: var(--card-bg); 
+            border: 1px solid var(--border-color); 
+            cursor: pointer; 
+            padding: 8px 12px; 
+            border-radius: 5px;
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
         .badge-agent { font-size: 11px; padding: 4px 8px; border-radius: 12px; white-space: nowrap; }
         /* Define agent colors - Add more as needed */
         .agent-hcp_p { background-color: #8ac926; color: white; }
@@ -55,20 +294,347 @@
         .agent-unknown { background-color: #adb5bd; color: white; }
         .agent-default { background-color: #6c757d; color: white; } /* Fallback */
         .progress { height: 8px; border-radius: 4px; }
-        .dropdown-item:hover { background-color: #f1f3f9; }
+        .dropdown-item:hover { background-color: var(--btn-outline-hover-bg); }
         .dropdown-item.active { background-color: var(--primary-color); }
+        .dropdown-menu {
+            background-color: var(--card-bg);
+            border-color: var(--border-color);
+        }
+        .dropdown-item {
+            color: var(--text-color);
+        }
         th[data-field] { cursor: pointer; }
         .sorting-asc::after { content: ' ↑'; color: var(--primary-color); font-size: 0.8em; }
         .sorting-desc::after { content: ' ↓'; color: var(--primary-color); font-size: 0.8em; }
-        .pagination-controls { margin-top: 1rem; padding: 0.5rem; background-color: #f8f9fa; border-radius: 0.25rem; }
-        .pagination-info { color: #6c757d; font-size: 0.875rem; }
+        .pagination-controls { 
+            margin-top: 1rem; 
+            padding: 0.5rem; 
+            background-color: var(--table-header-bg); 
+            border-radius: 0.25rem; 
+        }
+        .pagination-info { color: var(--metric-label-color); font-size: 0.875rem; }
+
         /* Style for clickable links (COMMENTED OUT) */
         /* td a { color: var(--primary-color); text-decoration: none; } */
         /* td a:hover { text-decoration: underline; } */
          /* Fix Model Usage Alignment */
         #modelTable th, #modelTable td { text-align: right; } /* Right-align numeric data */
         #modelTable th:first-child, #modelTable td:first-child { text-align: left; } /* Left-align model name */
+        /* Quick date filter styles */
+        .quick-date-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 5px;
+        }
+        .quick-date-filters button {
+            font-size: 11px;
+            padding: 2px 8px;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+        .quick-date-filters button.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        .btn-outline-secondary {
+            color: var(--text-color);
+            border-color: var(--border-color);
+        }
+        .btn-outline-secondary:hover {
+            background-color: var(--btn-outline-hover-bg);
+            color: var(--text-color);
+            border-color: var(--border-hover);
+        }
+        #dateRangeFilter {
+            min-width: 220px; /* Ensure filter input has enough width for dates */
+            text-align: center;
+        }
+        /* Fix daterangepicker appearance */
+        .daterangepicker td.active, .daterangepicker td.active:hover {
+            background-color: var(--primary-color) !important;
+        }
+        .daterangepicker .ranges li.active {
+            background-color: var(--primary-color) !important;
+        }
+        
+        /* Toast notifications */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 350px;
+        }
+        .toast {
+            background-color: var(--toast-bg);
+            margin-bottom: 10px;
+            box-shadow: 0 4px 8px var(--toast-shadow);
+            border-left: 4px solid var(--primary-color);
+            overflow: hidden;
+            color: var(--text-color);
+        }
+        .toast-header {
+            background-color: var(--table-header-bg);
+            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        .toast-body {
+            padding: 0.75rem 1rem;
+        }
+        .toast-header .close {
+            font-size: 1.25rem;
+            cursor: pointer;
+            opacity: 0.5;
+            margin-left: 15px;
+            color: var(--text-color);
+        }
+        .toast-progress {
+            height: 4px;
+            background-color: var(--primary-color);
+            width: 0%;
+            transition: width 300ms ease;
+        }
+        .toast-success {
+            border-left-color: #28a745;
+        }
+        .toast-warning {
+            border-left-color: #ffc107;
+        }
+        .toast-error {
+            border-left-color: #dc3545;
+        }
+        .toast-info {
+            border-left-color: var(--primary-color);
+        }
+        .toast-success .toast-progress {
+            background-color: #28a745;
+        }
+        .toast-warning .toast-progress {
+            background-color: #ffc107;
+        }
+        .toast-error .toast-progress {
+            background-color: #dc3545;
+        }
+        .toast-info .toast-progress {
+            background-color: var(--primary-color);
+        }
 
+        /* Form controls styling */
+        .form-control, .form-select {
+            background-color: var(--card-bg);
+            border-color: var(--border-color);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+        .form-control:focus, .form-select:focus {
+            background-color: var(--card-bg);
+            border-color: var(--primary-color);
+            color: var(--text-color);
+            box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+        }
+        
+        /* Theme toggler styling */
+        .theme-toggle {
+            border: none;
+            background: transparent;
+            color: var(--text-color);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+        }
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            background-color: var(--btn-outline-hover-bg);
+        }
+        
+        /* Fix modals for dark theme */
+        .modal-content {
+            background-color: var(--card-bg);
+            border-color: var(--border-color);
+            color: var(--text-color);
+        }
+        .modal-header, .modal-footer {
+            border-color: var(--border-color);
+        }
+        
+        /* Different button styles for each theme */
+        html[data-theme="dark"] .btn-close {
+            filter: brightness(2);
+        }
+        html[data-theme="light"] .btn-close {
+            filter: none;
+        }
+        
+        /* Chart JS customizations */
+        #dailyUsageChart, #agentDistributionChart, #traceGraph {
+            transition: all 0.3s ease;
+        }
+        
+        /* Enhanced tooltip styles for dark mode */
+        html[data-theme="dark"] .tooltip {
+            --bs-tooltip-bg: var(--card-bg);
+            --bs-tooltip-color: var(--text-color);
+        }
+        
+        html[data-theme="dark"] .tooltip .tooltip-inner {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+        
+        /* Fix date range picker for dark mode */
+        html[data-theme="dark"] .daterangepicker {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border-color: var(--border-color);
+        }
+        
+        html[data-theme="dark"] .daterangepicker .calendar-table {
+            background-color: var(--card-bg);
+            border-color: var(--border-color);
+        }
+        
+        html[data-theme="dark"] .daterangepicker .drp-buttons {
+            border-color: var(--border-color);
+        }
+        
+        html[data-theme="dark"] .daterangepicker .drp-selected {
+            color: var(--text-color);
+        }
+        
+        html[data-theme="dark"] .daterangepicker td.off, 
+        html[data-theme="dark"] .daterangepicker td.off.in-range, 
+        html[data-theme="dark"] .daterangepicker td.off.start-date, 
+        html[data-theme="dark"] .daterangepicker td.off.end-date {
+            background-color: rgba(0, 0, 0, 0.2);
+            color: rgba(255, 255, 255, 0.4);
+        }
+        
+        html[data-theme="dark"] .daterangepicker .ranges li:hover {
+            background-color: var(--btn-outline-hover-bg);
+            color: #fff;
+        }
+        
+        /* Improve contrast for view buttons in tables */
+        html[data-theme="dark"] .btn-outline-primary,
+        html[data-theme="dark"] .btn-outline-secondary {
+            border-width: 1.5px;
+        }
+        
+        html[data-theme="dark"] .view-trace-graph:hover,
+        html[data-theme="dark"] .btn-outline-secondary:hover {
+            border-color: #fff;
+            color: #fff;
+        }
+        
+        /* Links should use theme colors */
+        a {
+            color: var(--link-color);
+            text-decoration: none;
+        }
+        
+        a:hover {
+            color: var(--link-hover-color);
+            text-decoration: underline;
+        }
+
+        /* Fix button colors for dark theme */
+        html[data-theme="dark"] .btn {
+            transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        /* Fix outline buttons for dark theme */
+        html[data-theme="dark"] .btn-outline-primary {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+            background-color: transparent;
+        }
+        
+        html[data-theme="dark"] .btn-outline-primary:hover {
+            color: #fff;
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        html[data-theme="dark"] .btn-outline-secondary {
+            color: var(--text-color);
+            border-color: var(--border-color);
+            background-color: transparent;
+        }
+        
+        html[data-theme="dark"] .btn-outline-secondary:hover {
+            color: #fff;
+            background-color: var(--border-hover);
+            border-color: var(--border-hover);
+        }
+        
+        /* Fix date preset buttons */
+        html[data-theme="dark"] .date-preset {
+            color: var(--text-color);
+            border-color: var(--border-color);
+        }
+        
+        html[data-theme="dark"] .date-preset:hover {
+            background-color: var(--btn-outline-hover-bg);
+            color: #fff;
+            border-color: var(--border-hover);
+        }
+        
+        html[data-theme="dark"] .date-preset.active {
+            background-color: var(--primary-color);
+            color: #fff;
+            border-color: var(--primary-color);
+        }
+        
+        /* Fix table action buttons */
+        html[data-theme="dark"] .view-trace-graph, 
+        html[data-theme="dark"] td .btn-outline-secondary {
+            background-color: transparent;
+            color: var(--text-color);
+            border-color: var(--border-color);
+            border-width: 1px;
+        }
+        
+        html[data-theme="dark"] .view-trace-graph:hover, 
+        html[data-theme="dark"] td .btn-outline-secondary:hover {
+            background-color: var(--border-hover);
+            color: #fff;
+            border-color: var(--border-hover);
+        }
+
+        /* Fix subtitle and timestamp text colors in dark mode */
+        html[data-theme="dark"] .text-muted {
+            color: #adb5bd !important;
+        }
+        
+        /* Ensure the last refresh text is visible in both themes */
+        #lastDataFetch {
+            color: var(--metric-label-color);
+        }
+        
+        html[data-theme="dark"] #lastDataFetch {
+            color: #adb5bd;
+        }
+
+        /* Style for the dashboard subtitle */
+        .dashboard-subtitle {
+            color: var(--metric-label-color);
+        }
+        
+        html[data-theme="dark"] .dashboard-subtitle {
+            color: #adb5bd;
+        }
     </style>
 </head>
 <body>
@@ -88,18 +654,31 @@
         <div class="container-fluid">
             <div class="row align-items-center">
                  <div class="col-md-6">
-                    <h2 class="mb-0">Langfuse Usage Dashboard</h2>
-                    <p class="text-muted mb-0">Monitor token usage, costs, and conversations across all agents</p>
+                    <h2 class="mb-0">Galen Usage Dashboard</h2>
+                    <p class="dashboard-subtitle mb-0">Monitor token usage, costs, and conversations across all agents</p>
                 </div>
                 <div class="col-md-6 text-end">
                     <div class="d-flex justify-content-end align-items-center">
+                        <button id="themeToggle" class="theme-toggle me-3" aria-label="Toggle theme">
+                            <i class="fas fa-sun"></i>
+                        </button>
                         <div class="me-3">
                             <label for="dateRangeFilter" class="visually-hidden">Date Range:</label>
                             <input type="text" id="dateRangeFilter" class="form-control form-control-sm" readonly>
+                            <div class="quick-date-filters">
+                                <button class="btn btn-outline-secondary btn-sm date-preset" data-days="1">24h</button>
+                                <button class="btn btn-outline-secondary btn-sm date-preset" data-days="3">3d</button>
+                                <button class="btn btn-outline-secondary btn-sm date-preset" data-days="7">7d</button>
+                                <button class="btn btn-outline-secondary btn-sm date-preset" data-days="14">14d</button>
+                                <button class="btn btn-outline-secondary btn-sm date-preset" data-days="30">30d</button>
+                            </div>
                         </div>
+                        <div class="d-flex flex-column align-items-end">
                         <button id="fetchLatestButton" class="btn btn-success btn-sm ms-2">
                             <i class="fas fa-sync-alt"></i> Refresh Data
                         </button>
+                            <div id="refreshStatusBanner" class="text-primary fw-bold small mt-1" style="display: none;"></div>
+                        </div>
                     </div>
                      <div id="lastDataFetch" class="text-muted small mt-1 text-end" style="font-size: 0.75rem;"></div>
                 </div>
@@ -149,7 +728,7 @@
             <div class="col-lg col-md-4 col-sm-6 mb-3">
                 <div class="card metric-card h-100">
                     <div class="card-body text-center">
-                        <h6 class="metric-label text-uppercase small">Conversations</h6>
+                        <h6 class="metric-label text-uppercase small">Traces</h6>
                         <div id="totalConversationsValue" class="metric-value">0</div>
                     </div>
                 </div>
@@ -206,7 +785,7 @@
                                 <button class="nav-link active" id="user-tab" data-bs-toggle="tab" data-bs-target="#user-data" type="button" role="tab">User Activity</button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="conversation-tab" data-bs-toggle="tab" data-bs-target="#conversation-data" type="button" role="tab">Conversations (Traces)</button>
+                                <button class="nav-link" id="conversation-tab" data-bs-toggle="tab" data-bs-target="#conversation-data" type="button" role="tab">Traces</button>
                             </li>
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="session-tab" data-bs-toggle="tab" data-bs-target="#session-data" type="button" role="tab">Sessions</button>
@@ -234,7 +813,7 @@
                                         <thead>
                                             <tr>
                                                 <th data-field="userId">User ID</th>
-                                                <th data-field="totalTraces" class="text-end">Total Conv.</th>
+                                                <th data-field="totalTraces" class="text-end">Total Traces</th>
                                                 <th data-field="agents" class="no-sort">Agents Used</th>
                                                 <th data-field="firstSeen">First Seen</th>
                                                 <th data-field="lastSeen">Last Seen</th>
@@ -253,7 +832,7 @@
                                     <table class="table table-hover table-sm small" id="conversationTable">
                                         <thead>
                                             <tr>
-                                                <th data-field="id">Conv. ID</th>
+                                                <th data-field="id">Trace ID</th>
                                                 <th data-field="userId">User</th>
                                                 <th data-field="agent">Agent</th>
                                                 <th data-field="startTime">Start Time</th>
@@ -261,6 +840,7 @@
                                                 <th data-field="messageCount" class="text-end">Observations</th>
                                                 <th data-field="totalTokens" class="text-end">Tokens</th>
                                                 <th data-field="totalCost" class="text-end">Cost ($)</th>
+                                                <th class="no-sort text-center">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody></tbody>
@@ -280,9 +860,10 @@
                                                 <th data-field="startTime">Start Time</th>
                                                 <th data-field="endTime">End Time</th>
                                                 <th data-field="durationSeconds" class="text-end">Duration</th>
-                                                <th data-field="traceCount" class="text-end">Conv.</th>
+                                                <th data-field="traceCount" class="text-end">Traces</th>
                                                 <th data-field="totalTokens" class="text-end">Tokens</th>
                                                 <th data-field="totalCost" class="text-end">Cost ($)</th>
+                                                <th class="no-sort text-center">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody></tbody>
@@ -298,8 +879,8 @@
                                             <tr>
                                                 <th data-field="agent">Agent</th>
                                                 <th data-field="totalUsers" class="text-end">Total Users</th>
-                                                <th data-field="countTraces" class="text-end">Total Conv.</th>
-                                                <th data-field="avgMessagesPerConv" class="text-end">Avg Obs/Conv</th>
+                                                <th data-field="countTraces" class="text-end">Total Traces</th>
+                                                <th data-field="avgMessagesPerConv" class="text-end">Avg Obs/Trace</th>
                                                 <th data-field="totalTokens" class="text-end">Total Tokens</th>
                                                 <th data-field="totalCost" class="text-end">Total Cost ($)</th>
                                             </tr>
@@ -333,6 +914,39 @@
         </div>
     </div>
 
+    <!-- Toast Notifications Container -->
+    <div class="toast-container"></div>
+
+    <!-- Trace Graph Modal -->
+    <div class="modal fade" id="traceGraphModal" tabindex="-1" aria-labelledby="traceGraphModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="traceGraphModalLabel">Token Usage by Observation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="traceGraphLoading" class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p>Loading trace data...</p>
+                    </div>
+                    <div id="traceGraphContainer" style="display: none;">
+                        <div style="height: 400px;">
+                            <canvas id="traceGraph"></canvas>
+                        </div>
+                        <div id="traceGraphSummary" class="text-center mt-2 text-muted small"></div>
+                        <div id="tokenTableContainer" class="mt-3" style="max-height: 200px; overflow-y: auto;"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // --- Global Variables ---
@@ -353,6 +967,152 @@
             agent: { sortField: 'totalCost', sortDirection: 'desc', currentPage: 1 },
             model: { sortField: 'totalCost', sortDirection: 'desc', currentPage: 1 },
         };
+        
+        // Theme handling - initialize with system preference or stored preference
+        function initializeTheme() {
+            const storedTheme = localStorage.getItem('dashboardTheme');
+            
+            // If user has already set a preference, use that
+            if (storedTheme) {
+                document.documentElement.setAttribute('data-theme', storedTheme);
+                updateThemeIcon(storedTheme);
+            } else {
+                // Otherwise try to use system preference
+                const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                const initialTheme = prefersDarkMode ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-theme', initialTheme);
+                localStorage.setItem('dashboardTheme', initialTheme);
+                updateThemeIcon(initialTheme);
+            }
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            // Update DOM
+            document.documentElement.setAttribute('data-theme', newTheme);
+            
+            // Save preference
+            localStorage.setItem('dashboardTheme', newTheme);
+            
+            // Update icon
+            updateThemeIcon(newTheme);
+            
+            // Update charts with new theme colors
+            updateChartsForTheme();
+        }
+
+        function updateThemeIcon(theme) {
+            const icon = document.querySelector('#themeToggle i');
+            if (icon) {
+                if (theme === 'dark') {
+                    icon.className = 'fas fa-moon';
+                } else {
+                    icon.className = 'fas fa-sun';
+                }
+            }
+        }
+
+        function updateChartsForTheme() {
+            // Only update if charts are initialized
+            if (dailyUsageChart) {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const textColor = currentTheme === 'dark' ? '#e9ecef' : '#343a40';
+                const gridColor = currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+                
+                // Update Daily Usage Chart
+                dailyUsageChart.options.scales.x.grid.color = gridColor;
+                dailyUsageChart.options.scales.y.grid.color = gridColor;
+                dailyUsageChart.options.scales.x.ticks.color = textColor;
+                dailyUsageChart.options.scales.y.ticks.color = textColor;
+                dailyUsageChart.options.scales.x.title.color = textColor;
+                dailyUsageChart.options.scales.y.title.color = textColor;
+                dailyUsageChart.options.plugins.legend.labels.color = textColor;
+                dailyUsageChart.update();
+                
+                // Update Agent Distribution Chart
+                if (agentDistributionChart) {
+                    agentDistributionChart.options.plugins.legend.labels.color = textColor;
+                    agentDistributionChart.update();
+                }
+            }
+        }
+
+        // Langfuse configuration - will be set from environment variables
+        const LANGFUSE_CONFIG = {
+            host: window.LANGFUSE_HOST || 'langfuse.zoomrx.ai',
+            projectIds: {
+                // Agent-specific project IDs from environment variables
+                HCP_P: window.HCP_P_PROJECT_ID || '',
+                SCOPING: window.SCOPING_PROJECT_ID || '',
+                SYNAPSE: window.SYNAPSE_PROJECT_ID || '',
+                HASHTAG: window.HASHTAG_PROJECT_ID || '',
+                SURVEY_CODING: window.SURVEY_CODING_PROJECT_ID || '',
+            }
+        };
+
+        // Log the loaded configuration values for debugging
+        console.log('Langfuse configuration:', LANGFUSE_CONFIG);
+
+        // Function to generate Langfuse URL for traces
+        function getLangfuseTraceUrl(traceId, agent) {
+            // Get the project ID for the agent, or use default if not found
+            const agentKey = agent ? agent.toUpperCase().replace(/[^A-Z0-9_]/g, '_') : '';
+            const projectId = LANGFUSE_CONFIG.projectIds[agentKey] || LANGFUSE_CONFIG.projectIds.default;
+
+            if (!projectId) {
+                console.error(`No project ID found for agent: ${agent}`);
+                return '#'; // Return hash if no project ID found
+            }
+
+            // Ensure host doesn't have https:// prefix (it will be added below)
+            const host = LANGFUSE_CONFIG.host.replace(/^https?:\/\//, '');
+
+            // Use the correct format: host/project/projectId/traces?peek=traceId
+            return `https://${host}/project/${projectId}/traces?peek=${traceId}`;
+        }
+
+        // Function to generate Langfuse URL for sessions
+        function getLangfuseSessionUrl(sessionId, agent) {
+            // Get the project ID for the agent, or use default if not found
+            const agentKey = agent ? agent.toUpperCase().replace(/[^A-Z0-9_]/g, '_') : '';
+            const projectId = LANGFUSE_CONFIG.projectIds[agentKey] || LANGFUSE_CONFIG.projectIds.default;
+
+            if (!projectId) {
+                console.error(`No project ID found for agent: ${agent}`);
+                return '#'; // Return hash if no project ID found
+            }
+
+            // Ensure host doesn't have https:// prefix (it will be added below)
+            const host = LANGFUSE_CONFIG.host.replace(/^https?:\/\//, '');
+
+            // Use the correct format: host/project/projectId/sessions/sessionId
+            return `https://${host}/project/${projectId}/sessions/${sessionId}`;
+        }
+
+        // Function to generate Langfuse URL for observations
+        function getLangfuseObservationUrl(observationId, agent, timestamp) {
+            // Get the project ID for the agent, or use default if not found
+            const agentKey = agent ? agent.toUpperCase().replace(/[^A-Z0-9_]/g, '_') : '';
+            const projectId = LANGFUSE_CONFIG.projectIds[agentKey] || LANGFUSE_CONFIG.projectIds.default;
+
+            if (!projectId) {
+                console.error(`No project ID found for agent: ${agent}`);
+                return '#'; // Return hash if no project ID found
+            }
+
+            // Ensure host doesn't have https:// prefix (it will be added below)
+            const host = LANGFUSE_CONFIG.host.replace(/^https?:\/\//, '');
+
+            // Use the timestamp if available, otherwise use current time
+            const encodedTimestamp = timestamp ? 
+                encodeURIComponent(moment(timestamp).toISOString()) : 
+                encodeURIComponent(new Date().toISOString());
+
+            // Use the correct format: host/project/projectId/observations?observation=observationId&peek=observationId&timestamp=timestamp
+            return `https://${host}/project/${projectId}/observations?observation=${observationId}&peek=${observationId}&timestamp=${encodedTimestamp}`;
+        }
 
         // --- Utility Functions ---
         function formatNumber(num) { return (num || 0).toLocaleString(); }
@@ -438,7 +1198,10 @@
                     agentComparison: results[4] || [],
                     modelUsage: results[5] || [],
                 };
-                // Add debug log for agent comparison data
+                // Reset lastDataFetchTime to ensure we use the current time
+                lastDataFetchTime = new Date();
+                
+                // Debug log for agent comparison data
                 console.log("Loaded agent comparison data:", allData.agentComparison);
                 
                 logFrontendEvent(`Data loaded: ${allData.traces?.length} traces, ${allData.sessions?.length} sessions.`);
@@ -462,7 +1225,7 @@
                 populateAgentFilter();
                 populateUserFilter();
                 applyFiltersAndRefresh();
-                updateLastDataFetch(true);
+                updateLastDataFetch(true); // Set to true to update with current time
             } catch (error) {
                 console.error('Error loading dashboard data:', error);
                 alert('Failed to load dashboard data. Check console and data files.');
@@ -585,23 +1348,120 @@
         }
 
         // --- Chart Initialization and Updates ---
-        function initializeCharts() { /* ... (initializeCharts remains the same) ... */
-             const dailyCtx = document.getElementById('dailyUsageChart').getContext('2d');
+        function initializeCharts() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const textColor = currentTheme === 'dark' ? '#e9ecef' : '#343a40';
+            const gridColor = currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+            
+            const dailyCtx = document.getElementById('dailyUsageChart').getContext('2d');
             dailyUsageChart = new Chart(dailyCtx, {
-                type: 'line', data: { labels: [], datasets: [] },
-                options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, plugins: { legend: { position: 'bottom' }, tooltip: { callbacks: {
-                        label: function(context) { let label = context.dataset.label || ''; if (label) label += ': '; const value = context.parsed.y; const metricType = $('#dailyChartMetricToggle .active').data('metric') || 'tokens'; if (value !== null) label += metricType === 'cost' ? formatCost(value) : formatNumber(value); return label; }
-                    }}}, scales: { x: { grid: { display: false } }, y: { beginAtZero: true, ticks: { callback: function(value) { const metricType = $('#dailyChartMetricToggle .active').data('metric') || 'tokens'; return metricType === 'cost' ? '$' + formatNumber(Math.round(value)) : formatNumber(value); }}, title: { display: true, text: 'Usage' } }} }
+                type: 'line',
+                data: { labels: [], datasets: [] },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    interaction: { mode: 'index', intersect: false }, 
+                    plugins: { 
+                        legend: { 
+                            position: 'bottom',
+                            labels: {
+                                color: textColor
+                            }
+                        }, 
+                        tooltip: { 
+                            callbacks: {
+                                label: function(context) { 
+                                    let label = context.dataset.label || ''; 
+                                    if (label) label += ': '; 
+                                    const value = context.parsed.y; 
+                                    const metricType = $('#dailyChartMetricToggle .active').data('metric') || 'tokens'; 
+                                    if (value !== null) 
+                                        label += metricType === 'cost' ? formatCost(value) : formatNumber(value); 
+                                    return label; 
+                                }
+                            }
+                        }
+                    }, 
+                    scales: { 
+                        x: { 
+                            grid: { 
+                                display: true,
+                                color: gridColor
+                            },
+                            ticks: {
+                                color: textColor
+                            },
+                            title: {
+                                display: true,
+                                text: 'Date',
+                                color: textColor
+                            }
+                        }, 
+                        y: { 
+                            beginAtZero: true, 
+                            grid: {
+                                color: gridColor
+                            },
+                            ticks: { 
+                                color: textColor,
+                                callback: function(value) { 
+                                    const metricType = $('#dailyChartMetricToggle .active').data('metric') || 'tokens'; 
+                                    return metricType === 'cost' ? '$' + formatNumber(Math.round(value)) : formatNumber(value); 
+                                }
+                            }, 
+                            title: { 
+                                display: true, 
+                                text: 'Usage',
+                                color: textColor
+                            } 
+                        } 
+                    } 
+                }
             });
+            
             const agentCtx = document.getElementById('agentDistributionChart').getContext('2d');
             const agentColors = { 'HCP_P': '#8ac926', 'SCOPING': '#1982c4', 'SYNAPSE': '#6a4c93', 'HASHTAG': '#ff595e', 'SURVEY_CODING': '#ffca3a', 'DEFAULT': '#6c757d' };
+            
             agentDistributionChart = new Chart(agentCtx, {
-                type: 'doughnut', data: { labels: [], datasets: [{ data: [], backgroundColor: [], borderWidth: 1, borderColor: '#fff' }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 12 } }, tooltip: { callbacks: {
-                        label: function(context) { let label = context.label || ''; if (label) label += ': '; const value = context.parsed; const total = context.dataset.data.reduce((a, b) => a + b, 0); const percentage = total > 0 ? ((value / total) * 100).toFixed(1) + '%' : '0%'; if (value !== null) label += formatNumber(value) + ` (${percentage})`; return label; }
-                    }}}, cutout: '65%' }
+                type: 'doughnut', 
+                data: { 
+                    labels: [], 
+                    datasets: [{ 
+                        data: [], 
+                        backgroundColor: [], 
+                        borderWidth: 1, 
+                        borderColor: currentTheme === 'dark' ? '#272a30' : '#fff' 
+                    }] 
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: { 
+                            position: 'right', 
+                            labels: { 
+                                boxWidth: 12,
+                                color: textColor
+                            } 
+                        }, 
+                        tooltip: { 
+                            callbacks: {
+                                label: function(context) { 
+                                    let label = context.label || ''; 
+                                    if (label) label += ': '; 
+                                    const value = context.parsed; 
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0); 
+                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) + '%' : '0%'; 
+                                    if (value !== null) label += formatNumber(value) + ` (${percentage})`; 
+                                    return label; 
+                                }
+                            }
+                        }
+                    }, 
+                    cutout: '65%' 
+                }
             });
-         }
+        }
         function updateDailyUsageChart() { /* ... (updateDailyUsageChart remains the same) ... */
              const metricType = $('#dailyChartMetricToggle .active').data('metric') || 'tokens';
             const sourceData = filteredData.dailyMetrics ?? [];
@@ -660,7 +1520,7 @@
         // Define columns for each table
         const userColumns = [ /* ... (userColumns remain the same) ... */
              { header: 'User ID', field: 'userId', render: item => item.userId || 'Unknown', cellClass: 'text-break' },
-             { header: 'Total Conv.', field: 'totalTraces', render: item => formatNumber(item.totalTraces), cellClass: 'text-end' },
+             { header: 'Total Traces', field: 'totalTraces', render: item => formatNumber(item.totalTraces), cellClass: 'text-end' },
              { header: 'Agents Used', field: 'agents', sortable: false, render: item => (item.agents || []).map(agent => `<span class="badge badge-agent ${getAgentBadgeClass(agent)} me-1">${agent}</span>`).join(' ') },
              { header: 'First Seen', field: 'firstSeen', render: item => formatDateTime(item.firstSeen) },
              { header: 'Last Seen', field: 'lastSeen', render: item => formatDateTime(item.lastSeen) },
@@ -668,35 +1528,54 @@
              { header: 'Total Cost ($)', field: 'totalCost', render: item => formatCost(item.totalCost), cellClass: 'text-end' },
          ];
         const conversationColumns = [
-             // ** Enhancement: Conversation ID Link (COMMENTED OUT) **
-             // { header: 'Conv. ID', field: 'id', render: item => item.id ? `<a href="${LANGFUSE_BASE_URL}/project/${item.projectId}/traces/${item.id}" target="_blank" title="${item.id}">${item.id.substring(0, 8)}...</a>` : '-', cellClass: 'text-break' },
-             { header: 'Conv. ID', field: 'id', render: item => item.id ? item.id.substring(0, 8)+'...' : '-', cellClass: 'text-break', title: item => item.id }, // Show full ID on hover
+             { header: 'Trace ID', field: 'id', render: item => {
+                // Show shortened trace ID with hover for full ID
+                if (!item.id) return '-';
+                const shortId = item.id.substring(0, 8) + '...';
+                return `<span title="${item.id}">${shortId}</span>`;
+             }, cellClass: 'text-break' },
              { header: 'User', field: 'userId', render: item => item.userId || 'Unknown' },
              { header: 'Agent', field: 'agent', render: item => `<span class="badge badge-agent ${getAgentBadgeClass(item.agent)}">${item.agent || 'Unknown'}</span>` },
              { header: 'Start Time', field: 'startTime', render: item => formatDateTime(item.startTime) },
              { header: 'End Time', field: 'endTime', render: item => formatDateTime(item.endTime) },
-             { header: 'Observations', field: 'messageCount', render: item => formatNumber(item.messageCount), cellClass: 'text-end' },
+             { header: 'Observations', field: 'messageCount', render: item => formatNumber(item.messageCount), cellClass: 'text-center' },
              { header: 'Tokens', field: 'totalTokens', render: item => formatNumber(item.totalTokens), cellClass: 'text-end' },
              { header: 'Cost ($)', field: 'totalCost', render: item => formatCost(item.totalCost), cellClass: 'text-end' },
+             { header: 'Actions', field: '', sortable: false, headerClass: 'text-center', render: item => {
+                if (!item.id) return '';
+                const graphButton = `<button class="btn btn-sm btn-outline-primary view-trace-graph m-1" data-trace-id="${item.id}">View Graph</button>`;
+                const langfuseLink = `<a href="${getLangfuseTraceUrl(item.id, item.agent)}" class="btn btn-sm btn-outline-secondary langfuse-btn m-1" target="_blank" title="View complete trace in Langfuse">Langfuse</a>`;
+                return `<div class="d-flex justify-content-center">${graphButton}${langfuseLink}</div>`;
+             }, cellClass: 'text-center' }
          ];
         const sessionColumns = [
             // ** Enhancement: Session ID Link (COMMENTED OUT) **
              // { header: 'Session ID', field: 'id', render: item => item.id ? `<a href="${LANGFUSE_BASE_URL}/project/${item.projectId}/sessions/${item.id}" target="_blank" title="${item.id}">${item.id.substring(0, 8)}...</a>` : '-', cellClass: 'text-break' },
-             { header: 'Session ID', field: 'id', render: item => item.id ? item.id.substring(0, 8)+'...' : '-', cellClass: 'text-break', title: item => item.id }, // Show full ID on hover
+             { header: 'Session ID', field: 'id', render: item => {
+                // Show shortened session ID with hover for full ID
+                if (!item.id) return '-';
+                const shortId = item.id.substring(0, 8) + '...';
+                return `<span title="${item.id}">${shortId}</span>`;
+             }, cellClass: 'text-break' },
              { header: 'User', field: 'userId', render: item => item.userId || 'Unknown' },
              { header: 'Agent', field: 'agent', render: item => `<span class="badge badge-agent ${getAgentBadgeClass(item.agent)}">${item.agent || 'Unknown'}</span>` },
              { header: 'Start Time', field: 'startTime', render: item => formatDateTime(item.startTime) },
              { header: 'End Time', field: 'endTime', render: item => formatDateTime(item.endTime) },
-             { header: 'Duration', field: 'durationSeconds', render: item => formatDuration(item.durationSeconds), cellClass: 'text-end' },
-             { header: 'Conv.', field: 'traceCount', render: item => formatNumber(item.traceCount), cellClass: 'text-end' },
+             { header: 'Duration', field: 'durationSeconds', render: item => formatDuration(item.durationSeconds), cellClass: 'text-end', title: 'Sum of all operation latencies within the session' },
+             { header: 'Traces', field: 'traceCount', render: item => formatNumber(item.traceCount), cellClass: 'text-center' },
              { header: 'Tokens', field: 'totalTokens', render: item => formatNumber(item.totalTokens), cellClass: 'text-end' },
              { header: 'Cost ($)', field: 'totalCost', render: item => formatCost(item.totalCost), cellClass: 'text-end' },
+             { header: 'Actions', field: '', sortable: false, headerClass: 'text-center', render: item => {
+                if (!item.id) return '';
+                const langfuseLink = `<a href="${getLangfuseSessionUrl(item.id, item.agent)}" class="btn btn-sm btn-outline-secondary langfuse-btn m-1" target="_blank" title="View complete session in Langfuse">Langfuse</a>`;
+                return `<div class="d-flex justify-content-center">${langfuseLink}</div>`;
+             }, cellClass: 'text-center' }
          ];
          const agentColumns = [ /* ... (agentColumns remain the same) ... */
              { header: 'Agent', field: 'agent', render: item => `<span class="badge badge-agent ${getAgentBadgeClass(item.agent)} me-1">${item.agent}</span>` },
              { header: 'Total Users', field: 'totalUsers', render: item => formatNumber(item.totalUsers), cellClass: 'text-end' },
-             { header: 'Total Conv.', field: 'countTraces', render: item => formatNumber(item.countTraces), cellClass: 'text-end' },
-             { header: 'Avg Obs/Conv', field: 'avgMessagesPerConv', render: item => item.avgMessagesPerConv?.toFixed(1) ?? '-', cellClass: 'text-end' },
+             { header: 'Total Traces', field: 'countTraces', render: item => formatNumber(item.countTraces), cellClass: 'text-end' },
+             { header: 'Avg Obs/Trace', field: 'avgMessagesPerConv', render: item => item.avgMessagesPerConv?.toFixed(1) ?? '-', cellClass: 'text-end' },
              { header: 'Total Tokens', field: 'totalTokens', render: item => formatNumber(item.totalTokens), cellClass: 'text-end' },
              { header: 'Total Cost ($)', field: 'totalCost', render: item => formatCost(item.totalCost), cellClass: 'text-end' },
          ];
@@ -736,21 +1615,50 @@
                 if (aVal < bVal) return direction === 'asc' ? -1 : 1; if (aVal > bVal) return direction === 'asc' ? 1 : -1; return 0;
             });
          }
-        function setupTableSorting(tableId, stateKey, columns) { /* ... (setupTableSorting remains the same) ... */
-             const table = document.getElementById(tableId); if (!table) return; const headers = table.querySelectorAll('thead th[data-field]');
+        function setupTableSorting(tableId, stateKey, columns) {
+            const table = document.getElementById(tableId); 
+            if (!table) return;
+            
+            const headers = table.querySelectorAll('thead th[data-field]');
             headers.forEach(header => {
-                 const columnDef = columns.find(c => c.field === header.dataset.field); if (columnDef && columnDef.sortable === false) { header.style.cursor = 'default'; return; }
+                // Apply headerClass if defined for this column
+                const columnDef = columns.find(c => c.field === header.dataset.field);
+                if (columnDef && columnDef.headerClass) {
+                    header.className += ` ${columnDef.headerClass}`;
+                }
+                
+                // Skip if column is not sortable
+                if (columnDef && columnDef.sortable === false) {
+                    header.style.cursor = 'default';
+                    return;
+                }
+                
+                // Set up sorting
                 header.style.cursor = 'pointer';
                 header.addEventListener('click', () => {
-                    const field = header.dataset.field; let newDir = 'asc';
+                    const field = header.dataset.field;
+                    let newDir = 'asc';
+                    
                     table.querySelectorAll('thead th[data-field]').forEach(h => h.classList.remove('sorting-asc', 'sorting-desc'));
-                    if (tableState[stateKey].sortField === field) newDir = tableState[stateKey].sortDirection === 'asc' ? 'desc' : 'asc';
-                    tableState[stateKey].sortField = field; tableState[stateKey].sortDirection = newDir; tableState[stateKey].currentPage = 1;
-                    header.classList.add(newDir === 'asc' ? 'sorting-asc' : 'sorting-desc'); logFrontendEvent(`Sorting table ${tableId} by ${field} (${newDir})`); updateActiveTable();
+                    
+                    if (tableState[stateKey].sortField === field) {
+                        newDir = tableState[stateKey].sortDirection === 'asc' ? 'desc' : 'asc';
+                    }
+                    
+                    tableState[stateKey].sortField = field;
+                    tableState[stateKey].sortDirection = newDir;
+                    tableState[stateKey].currentPage = 1;
+                    
+                    header.classList.add(newDir === 'asc' ? 'sorting-asc' : 'sorting-desc');
+                    logFrontendEvent(`Sorting table ${tableId} by ${field} (${newDir})`);
+                    updateActiveTable();
                 });
-                 if (tableState[stateKey].sortField === header.dataset.field) header.classList.add(tableState[stateKey].sortDirection === 'asc' ? 'sorting-asc' : 'sorting-desc');
+                
+                if (tableState[stateKey].sortField === header.dataset.field) {
+                    header.classList.add(tableState[stateKey].sortDirection === 'asc' ? 'sorting-asc' : 'sorting-desc');
+                }
             });
-         }
+        }
         function setupPagination(containerId, stateKey, totalItems, itemsPerPage, onPageChange) { /* ... (setupPagination remains the same) ... */
               const container = $(`#${containerId}`); container.empty(); if (totalItems <= itemsPerPage) return;
             const template = $('#paginationTemplate'); const paginationControls = $(template.html());
@@ -766,31 +1674,705 @@
         // --- Event Listeners ---
         function initializeDateRangePicker() { /* ... (initializeDateRangePicker remains the same) ... */
              $('#dateRangeFilter').daterangepicker({
-                startDate: moment().subtract(30, 'days'), endDate: moment(), opens: 'left', locale: { format: 'YYYY-MM-DD' },
-                ranges: { 'Today': [moment(), moment()], 'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')], 'Last 7 Days': [moment().subtract(6, 'days'), moment()], 'Last 30 Days': [moment().subtract(29, 'days'), moment()], 'This Month': [moment().startOf('month'), moment().endOf('month')], 'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')] }
-            }, function(start, end, label) { logFrontendEvent(`Date range changed: ${start.format('YYYY-MM-DD')} to ${end.format('YYYY-MM-DD')}`); applyFiltersAndRefresh(); });
+                startDate: moment().subtract(7, 'days'), // Changed from 30 days to 7 days as default
+                endDate: moment(), 
+                opens: 'left', 
+                locale: { 
+                    format: 'MMM D, YYYY', // Changed date format to show month name, day and year
+                    applyLabel: 'Apply',
+                    cancelLabel: 'Cancel',
+                    customRangeLabel: 'Custom Range'
+                },
+                ranges: { 
+                    'Today': [moment(), moment()], 
+                    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')], 
+                    'Last 24 Hours': [moment().subtract(24, 'hours'), moment()],
+                    'Last 3 Days': [moment().subtract(2, 'days'), moment()], 
+                    'Last 7 Days': [moment().subtract(6, 'days'), moment()], 
+                    'Last 14 Days': [moment().subtract(13, 'days'), moment()],
+                    'Last 30 Days': [moment().subtract(29, 'days'), moment()], 
+                    'This Month': [moment().startOf('month'), moment().endOf('month')], 
+                    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                }
+            }, function(start, end, label) { 
+                logFrontendEvent(`Date range changed: ${start.format('YYYY-MM-DD')} to ${end.format('YYYY-MM-DD')}`); 
+                applyFiltersAndRefresh(); 
+            });
+            
+            // Add event listeners for quick date presets
+            $('.date-preset').on('click', function() {
+                const days = parseInt($(this).data('days'), 10);
+                const endDate = moment();
+                const startDate = moment().subtract(days - 1, 'days');
+                
+                // Remove active class from all buttons and add to the clicked one
+                $('.date-preset').removeClass('active');
+                $(this).addClass('active');
+                
+                $('#dateRangeFilter').data('daterangepicker').setStartDate(startDate);
+                $('#dateRangeFilter').data('daterangepicker').setEndDate(endDate);
+                
+                logFrontendEvent(`Quick date filter set to ${days} days`);
+                applyFiltersAndRefresh();
+            });
+            
+            // Set default active button (7 days)
+            $('.date-preset[data-days="7"]').addClass('active');
+            
+            // Update button active state when date range changes from the picker
+            $('#dateRangeFilter').on('apply.daterangepicker', function(ev, picker) {
+                // Calculate the number of days in the range
+                const start = picker.startDate;
+                const end = picker.endDate;
+                const days = end.diff(start, 'days') + 1;
+                
+                // Clear all active states
+                $('.date-preset').removeClass('active');
+                
+                // If the range matches one of our presets, highlight that button
+                $('.date-preset').each(function() {
+                    const presetDays = parseInt($(this).data('days'), 10);
+                    if (presetDays === days && end.isSame(moment(), 'day')) {
+                        $(this).addClass('active');
+                    }
+                });
+            });
          }
-        function updateLastDataFetch(success = true) { /* ... (updateLastDataFetch remains the same) ... */
-              const display = $('#lastDataFetch');
-            if (success && lastDataFetchTime === null) { lastDataFetchTime = new Date(); localStorage.setItem('dashboardLastDataFetch', lastDataFetchTime.toISOString()); }
-            else if (!success && lastDataFetchTime === null) { const storedTime = localStorage.getItem('dashboardLastDataFetch'); if (storedTime) lastDataFetchTime = new Date(storedTime); }
-            if (lastDataFetchTime) { display.text(`Data last refreshed: ${moment(lastDataFetchTime).fromNow()}`); display.attr('title', lastDataFetchTime.toLocaleString()); display.removeClass('text-danger'); }
-            else { display.text('Data refresh status unknown.'); display.addClass('text-danger'); }
-         }
+        function updateLastDataFetch(success = true) {
+            const display = $('#lastDataFetch');
+            const now = new Date();
+            
+            if (success) {
+                lastDataFetchTime = now;
+                localStorage.setItem('dashboardLastDataFetch', lastDataFetchTime.toISOString());
+            } else if (lastDataFetchTime === null) {
+                const storedTime = localStorage.getItem('dashboardLastDataFetch');
+                if (storedTime) {
+                    const parsedTime = new Date(storedTime);
+                    // Only use stored time if it's less than 12 hours old, otherwise reset it
+                    if (!isNaN(parsedTime) && (now - parsedTime) < 12 * 60 * 60 * 1000) {
+                        lastDataFetchTime = parsedTime;
+                    } else {
+                        localStorage.removeItem('dashboardLastDataFetch');
+                    }
+                }
+            }
+            
+            if (lastDataFetchTime) {
+                display.text(`Data last refreshed: ${moment(lastDataFetchTime).fromNow()}`);
+                display.attr('title', lastDataFetchTime.toLocaleString());
+                display.removeClass('text-danger');
+            } else {
+                display.text('Data refresh status unknown.');
+                display.addClass('text-danger');
+            }
+        }
+
+        // Function to check if a refresh is in progress when the page loads
+        function checkRefreshStatus() {
+            fetch('/api/refresh-status')
+                .then(response => response.json())
+                .then(status => {
+                    if (status.running) {
+                        console.log('Detected refresh in progress on page load');
+                        
+                        // Calculate elapsed time
+                        const startTime = new Date(status.started);
+                        const now = new Date();
+                        const elapsedSeconds = Math.round((now - startTime) / 1000);
+                        const minutes = Math.floor(elapsedSeconds / 60);
+                        const seconds = elapsedSeconds % 60;
+                        const timeStr = `${minutes}m ${seconds.toString().padStart(2, '0')}s`;
+                        
+                        // Update UI to show refresh in progress
+                        const btn = $('#fetchLatestButton');
+                        const refreshStatusBanner = $('#refreshStatusBanner');
+                        
+                        // Disable button
+                        btn.prop('disabled', true).html('Refresh In Progress');
+                        
+                        // Show status banner
+                        refreshStatusBanner.html(`Data refresh in progress (${timeStr}) - please wait...`)
+                                       .removeClass('text-success text-danger')
+                                       .addClass('text-primary')
+                                       .show();
+                        
+                        // Show toast
+                        const toastId = showToast(`Data refresh running (${timeStr})<br>This may take several minutes depending on the amount of data.`, 'info', 0, 'Data Refresh In Progress');
+                        
+                        // Start a timer to update the elapsed time
+                        let refreshTimerSeconds = elapsedSeconds;
+                        const refreshTimer = setInterval(() => {
+                            refreshTimerSeconds++;
+                            const mins = Math.floor(refreshTimerSeconds / 60);
+                            const secs = refreshTimerSeconds % 60;
+                            const newTimeStr = `${mins}m ${secs.toString().padStart(2, '0')}s`;
+                            
+                            // Update the status banner with elapsed time
+                            refreshStatusBanner.html(`Data refresh in progress (${newTimeStr}) - please wait...`);
+                            
+                            // Also update the toast
+                            updateToast(toastId, `Data refresh running (${newTimeStr})<br>This may take several minutes depending on the amount of data.`);
+                            
+                            // Poll for status updates
+                            fetch('/api/refresh-status')
+                                .then(response => response.json())
+                                .then(updatedStatus => {
+                                    if (!updatedStatus.running) {
+                                        // Refresh completed
+                                        clearInterval(refreshTimer);
+                                        
+                                        // Re-enable button
+                                        btn.prop('disabled', false).html('<i class="fas fa-sync-alt"></i> Refresh Data');
+                                        
+                                        if (updatedStatus.exitCode === 0) {
+                                            // Success
+                                            refreshStatusBanner.html('Data refresh completed successfully!')
+                                                              .removeClass('text-primary')
+                                                              .addClass('text-success');
+                                            
+                                            updateToast(toastId, 'Data refresh completed successfully! Loading updated data...', 'success');
+                                            
+                                            // Update last fetch time
+                                            lastDataFetchTime = new Date();
+                                            updateLastDataFetch(true);
+                                            
+                                            // Set a timeout to hide the banner after 10 seconds
+                                            setTimeout(() => {
+                                                refreshStatusBanner.fadeOut('slow');
+                                            }, 10000);
+                                            
+                                            // Load the updated data
+                                            loadAllData();
+                                        } else {
+                                            // Error
+                                            refreshStatusBanner.html(`Error refreshing data: Exit code ${updatedStatus.exitCode}`)
+                                                              .removeClass('text-primary')
+                                                              .addClass('text-danger');
+                                            
+                                            updateToast(toastId, `Error refreshing data: Exit code ${updatedStatus.exitCode}`, 'error');
+                                            
+                                            // Try to load data anyway
+                                            loadAllData();
+                                        }
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error("Error checking refresh status:", error);
+                                });
+                        }, 1000);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error checking initial refresh status:", error);
+                });
+        }
 
          // --- Initial Setup ---
         $(document).ready(function() { /* ... (document.ready remains the same) ... */
+             initializeTheme();
              initializeCharts(); initializeDateRangePicker(); updateLastDataFetch(false);
+             
+             // Check if a refresh is in progress when the page loads
+             checkRefreshStatus();
+             
              loadAllData();
+             
+             // Set up theme toggler
+             $('#themeToggle').on('click', function() {
+                 toggleTheme();
+             });
+             
              $('#agentFilter').on('change', function() { logFrontendEvent(`Agent filter changed: ${$(this).val()}`); populateUserFilter(); applyFiltersAndRefresh(); });
              $('#userFilter').on('change', function() { logFrontendEvent(`User filter changed: ${$(this).val()}`); applyFiltersAndRefresh(); });
-              $('#fetchLatestButton').on('click', function() { const btn = $(this); btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Refreshing...'); logFrontendEvent('Manual refresh...'); lastDataFetchTime = null; loadAllData().finally(() => { btn.prop('disabled', false).html('<i class="fas fa-sync-alt"></i> Refresh Data'); }); });
+             
+             $('#fetchLatestButton').on('click', function() { 
+    const btn = $(this);
+    const refreshStatusBanner = $('#refreshStatusBanner');
+    
+    // Disable button for the entire refresh process
+    btn.prop('disabled', true).html('Refresh In Progress');
+    logFrontendEvent('Manual refresh initiated...');
+    
+    // Show immediate feedback in the status banner
+    refreshStatusBanner.html('Data refresh started - this may take several minutes...')
+                       .removeClass('text-success text-danger')
+                       .addClass('text-primary')
+                       .show();
+    
+    // Show initial toast with infinite duration (we'll update it as the process progresses)
+    const toastId = showToast('Data refresh is running in the background. This may take several minutes depending on the amount of data.', 'info', 0, 'Data Refresh Started');
+    
+    // Create a refresh timer to show elapsed time
+    let elapsedSeconds = 0;
+    const refreshTimer = setInterval(() => {
+        elapsedSeconds++;
+        const minutes = Math.floor(elapsedSeconds / 60);
+        const seconds = elapsedSeconds % 60;
+        const timeStr = `${minutes}m ${seconds.toString().padStart(2, '0')}s`;
+        
+        // Update the status banner with elapsed time
+        refreshStatusBanner.html(`Data refresh in progress (${timeStr}) - please wait...`);
+        
+        // Also update the toast
+        updateToast(toastId, `Data refresh running (${timeStr})<br>This may take several minutes depending on the amount of data.`);
+    }, 1000);
+    
+    // First call the API to trigger data refresh on the server
+    fetch('/api/refresh-data', {
+        method: 'POST'
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Server returned ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        logFrontendEvent('Data refresh started in background: ' + JSON.stringify(data));
+        
+        if (data.success) {
+            // Start polling for status
+            return pollRefreshStatus()
+                .then(finalStatus => {
+                    // Stop the timer
+                    clearInterval(refreshTimer);
+                    
+                    // Show completion message
+                    refreshStatusBanner.html('Data refresh completed successfully!')
+                                       .removeClass('text-primary')
+                                       .addClass('text-success');
+                    
+                    // Update toast with success message
+                    updateToast(toastId, 'Data refresh completed successfully! Loading updated data...', 'success');
+                    
+                    // Clear localStorage timestamp to ensure we get a fresh value
+                    localStorage.removeItem('dashboardLastDataFetch');
+                    
+                    // Set a new timestamp and update display
+                    lastDataFetchTime = new Date();
+                    updateLastDataFetch(true);
+                    
+                    // Set a timeout to hide the banner after 10 seconds
+                    setTimeout(() => {
+                        refreshStatusBanner.fadeOut('slow');
+                    }, 10000);
+                    
+                    return loadAllData();
+                });
+        } else {
+            throw new Error(data.message || 'Unknown error');
+        }
+    })
+    .catch(error => {
+        // Stop the timer
+        clearInterval(refreshTimer);
+        
+        console.error('Error refreshing data:', error);
+        
+        // Update status banner with error
+        refreshStatusBanner.html(`Error refreshing data: ${error.message}`)
+                           .removeClass('text-primary')
+                           .addClass('text-danger');
+        
+        // Update toast with error
+        updateToast(toastId, `Error refreshing data: ${error.message}`, 'error');
+        
+        // Try to load existing data anyway
+        return loadAllData();
+    })
+    .finally(() => {
+        // Re-enable the button but keep the status message until it fades
+        btn.prop('disabled', false).html('<i class="fas fa-sync-alt"></i> Refresh Data');
+    });
+});
              $('#dailyChartMetricToggle').on('click', 'button', function() { $(this).addClass('active').siblings().removeClass('active'); updateDailyUsageChart(); });
              $('#dataTabs button[data-bs-toggle="tab"]').on('shown.bs.tab', function (event) { const targetTabId = $(event.target).attr('id').split('-')[0]; logFrontendEvent(`Tab switched to: ${targetTabId}`); if (tableState[targetTabId]) tableState[targetTabId].currentPage = 1; else console.warn(`State not found for tab: ${targetTabId}`); updateActiveTable(); });
              setTimeout(() => { setupTableSorting('userTable', 'user', userColumns); setupTableSorting('conversationTable', 'conversation', conversationColumns); setupTableSorting('sessionTable', 'session', sessionColumns); setupTableSorting('agentTable', 'agent', agentColumns); setupTableSorting('modelTable', 'model', modelColumns); }, 500);
              setInterval(() => updateLastDataFetch(true), 60 * 1000);
+
+             // Set up event handler for viewing trace graph
+             $(document).on('click', '.view-trace-graph', async function() {
+                 const traceId = $(this).data('trace-id');
+                 
+                 // Show the modal
+                 const traceGraphModal = new bootstrap.Modal(document.getElementById('traceGraphModal'));
+                 traceGraphModal.show();
+                 
+                 // Fetch and render the trace data
+                 const observations = await fetchTraceObservations(traceId);
+                 renderTraceGraph(traceId, observations);
+             });
         });
 
+        // Trace Graph Functionality
+        async function fetchTraceObservations(traceId) {
+            try {
+                // Show loading spinner
+                $('#traceGraphLoading').show();
+                $('#traceGraphContainer').hide();
+                
+                // Find the trace data in our current filtered dataset
+                // Allow partial matching if the ID is shortened
+                const partialId = traceId.substring(0, 8);
+                const trace = filteredData.traces.find(t => 
+                    t.id === traceId || t.id.startsWith(partialId)
+                );
+                
+                if (!trace) {
+                    throw new Error("Trace not found");
+                }
+                
+                console.log(`Fetching observations for trace: ${trace.id}, tokens: ${trace.totalTokens}, messages: ${trace.messageCount}`);
+                
+                // Fetch real observation data from our API endpoint
+                // We'll pass just the first part of the ID if it's a UUID (commonly displayed shortened in UI)
+                const searchId = traceId.length === 36 ? traceId : traceId.substring(0, 8);
+                const response = await fetch(`/api/traces/${searchId}/observations`);
+                
+                if (!response.ok) {
+                    // If we can't get real data, fall back to simulation
+                    console.warn(`Could not fetch real observation data for trace ${searchId}. Status: ${response.status}`);
+                    return generateSimulatedData(trace);
+                }
+                
+                const data = await response.json();
+                
+                if (!data.toolCalls || data.toolCalls.length === 0) {
+                    console.warn(`No tool calls found for trace ${searchId}, using simulated data`);
+                    return generateSimulatedData(trace);
+                }
+                
+                console.log(`Retrieved ${data.toolCalls.length} tool calls, total tokens: ${data.totalTraceTokens}`);
+                
+                // Compare the token count from the trace with what we got from observations
+                if (trace.totalTokens && data.totalTraceTokens && 
+                    Math.abs(trace.totalTokens - data.totalTraceTokens) / trace.totalTokens > 0.2) {
+                    console.warn(`Token count discrepancy: trace has ${trace.totalTokens} tokens, ` +
+                                 `but observations sum to ${data.totalTraceTokens} tokens`);
+                }
+                
+                // Sort the tool calls by number to ensure correct order
+                // Include all observations, even those with zero tokens
+                return data.toolCalls.sort((a, b) => a.toolCallNumber - b.toolCallNumber);
+                
+            } catch (error) {
+                console.error("Error fetching trace observations:", error);
+                // Fall back to simulated data if real data fetch fails
+                return generateSimulatedData(trace);
+            }
+        }
+
+        // Helper function to generate simulated data if real data is unavailable
+        function generateSimulatedData(trace) {
+            // THIS IS FAKE DATA FOR DEMONSTRATION ONLY
+            console.warn("Generating simulated data as fallback");
+            
+            const messageCount = trace.messageCount || 10;
+            const totalTokens = trace.totalTokens || 1000;
+            
+            // Simulate tool call data
+            // THIS IS NOT REAL DATA - just a simulation
+            const observations = [];
+            
+            // In reality, the number of tool calls would come from actual observation data
+            const simulatedToolCallCount = Math.min(Math.max(Math.ceil(messageCount * 0.3), 3), 20);
+            
+            // Distribute tokens across tools following a somewhat realistic pattern
+            const toolCallTokens = [];
+            let remainingTokens = totalTokens;
+            
+            // Generate some random token amounts for tool calls
+            for (let i = 0; i < simulatedToolCallCount - 1; i++) {
+                // Each tool call gets between 3-20% of remaining tokens
+                const tokenPercentage = 0.03 + Math.random() * 0.17;
+                const tokenAmount = Math.floor(remainingTokens * tokenPercentage);
+                toolCallTokens.push(tokenAmount);
+                remainingTokens -= tokenAmount;
+            }
+            
+            // Last tool call gets all remaining tokens
+            toolCallTokens.push(remainingTokens);
+            
+            // Create simulated tool calls with the token amounts
+            for (let i = 0; i < simulatedToolCallCount; i++) {
+                observations.push({
+                    toolCallNumber: i + 1,
+                    tokenUsage: toolCallTokens[i],
+                    name: `Simulated Tool Call ${i + 1}`
+                });
+            }
+            
+            return observations;
+        }
+
+        function renderTraceGraph(traceId, observations) {
+            // Hide loading spinner
+            $('#traceGraphLoading').hide();
+            $('#traceGraphContainer').show();
+            
+            // Check if we have valid data
+            if (!observations || observations.length === 0) {
+                document.getElementById('traceGraphContainer').innerHTML = '<div class="alert alert-warning text-center">No observation data available for this trace.</div>';
+                return;
+            }
+            
+            // Find the trace data
+            const partialId = traceId.substring(0, 8);
+            const trace = filteredData.traces.find(t => t.id === traceId || t.id.startsWith(partialId));
+            const agentName = trace ? trace.agent : '';
+            
+            // Sort observations by toolCallNumber to ensure correct order
+            observations.sort((a, b) => a.toolCallNumber - b.toolCallNumber);
+            
+            // Prepare data for the chart - include ALL observations
+            // Just use simple numbers for the x-axis
+            const labels = observations.map((obs, index) => (index + 1).toString());
+            const tokenData = observations.map(obs => obs.tokenUsage || 0);
+            
+            // Calculate the total tokens from non-zero observations
+            const totalGraphTokens = tokenData.reduce((sum, curr) => sum + curr, 0);
+            
+            // Create the chart context
+            const ctx = document.getElementById('traceGraph').getContext('2d');
+            
+            // Get theme-specific colors
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const textColor = currentTheme === 'dark' ? '#e9ecef' : '#343a40';
+            const gridColor = currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+            const backgroundColor = currentTheme === 'dark' ? 'rgba(94, 114, 228, 0.2)' : 'rgba(54, 162, 235, 0.2)';
+            const borderColor = currentTheme === 'dark' ? 'rgba(94, 114, 228, 1)' : 'rgba(54, 162, 235, 1)';
+            const pointBackgroundColor = currentTheme === 'dark' ? 'rgba(94, 114, 228, 1)' : 'rgba(54, 162, 235, 1)';
+            
+            // Destroy any existing chart
+            if (window.traceChart) {
+                window.traceChart.destroy();
+            }
+            
+            // Create a line chart
+            window.traceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Token Usage',
+                        data: tokenData,
+                        backgroundColor: backgroundColor,
+                        borderColor: borderColor,
+                        borderWidth: 2,
+                        pointBackgroundColor: pointBackgroundColor,
+                        pointRadius: 3,
+                        tension: 0.1, // Slight curve to the lines
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Token Count',
+                                color: textColor
+                            },
+                            grid: {
+                                color: gridColor
+                            },
+                            ticks: {
+                                color: textColor
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Observation Number',
+                                color: textColor
+                            },
+                            grid: {
+                                color: gridColor
+                            },
+                            ticks: {
+                                autoSkip: false,
+                                color: textColor
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                title: function(tooltipItems) {
+                                    const idx = tooltipItems[0].dataIndex;
+                                    const obsNumber = idx + 1;
+                                    const obs = observations[idx];
+                                    return `Observation ${obsNumber}`;
+                                },
+                                label: function(context) {
+                                    return `Tokens: ${context.raw.toLocaleString()}`;
+                                },
+                                afterLabel: function(context) {
+                                    const idx = context.dataIndex;
+                                    const obs = observations[idx];
+                                    return obs.name ? `Type: ${obs.name}` : '';
+                                }
+                            }
+                        },
+                        legend: {
+                            display: false,
+                            labels: {
+                                color: textColor
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: `Token Usage (Total: ${totalGraphTokens.toLocaleString()} tokens)`,
+                            color: textColor
+                        }
+                    }
+                }
+            });
+            
+            // Just show the observation count in the summary section
+            document.getElementById('traceGraphSummary').textContent = 
+                `${observations.length} total observations`;
+            
+            // Create a table with non-zero token observations
+            const nonZeroObservations = observations.filter(obs => (obs.tokenUsage || 0) > 0);
+            
+            if (nonZeroObservations.length > 0) {
+                const tableHtml = `
+                    <table class="table table-sm table-striped">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Name</th>
+                                <th class="text-end">Tokens</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${nonZeroObservations.map((obs, index) => {
+                                // Get the observation URL
+                                const obsLink = obs.id ? getLangfuseObservationUrl(obs.id, agentName, obs.timestamp) : '';
+                                return `
+                                    <tr>
+                                        <td>${obs.toolCallNumber}</td>
+                                        <td>${obs.name || 'Unknown'}</td>
+                                        <td class="text-end">${obs.tokenUsage.toLocaleString()}</td>
+                                        <td class="text-center">${obs.id ? 
+                                            `<a href="${obsLink}" class="btn btn-sm btn-outline-secondary langfuse-btn" target="_blank" title="View observation details in Langfuse">View Details</a>` : 
+                                            '—'}
+                                        </td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                `;
+                document.getElementById('tokenTableContainer').innerHTML = tableHtml;
+            } else {
+                document.getElementById('tokenTableContainer').innerHTML = 
+                    '<div class="alert alert-warning">No observations with token data found.</div>';
+            }
+        }
+
+        // Toast notification functions
+        function showToast(message, type = 'info', duration = 5000, title = '') {
+            // Create toast element
+            const toastId = 'toast-' + Date.now();
+            const toast = $(`
+                <div id="${toastId}" class="toast toast-${type}" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header">
+                        <strong class="mr-auto">${title || (type.charAt(0).toUpperCase() + type.slice(1))}</strong>
+                        <span class="close">&times;</span>
+                    </div>
+                    <div class="toast-body">${message}</div>
+                    <div class="toast-progress"></div>
+                </div>
+            `);
+            
+            // Add to container
+            $('.toast-container').append(toast);
+            
+            // Handle close button
+            toast.find('.close').on('click', function() {
+                removeToast(toastId);
+            });
+            
+            // Animate progress bar
+            const progressBar = toast.find('.toast-progress');
+            progressBar.animate({ width: '100%' }, duration);
+            
+            // Auto remove after duration
+            if (duration > 0) {
+                setTimeout(() => {
+                    removeToast(toastId);
+                }, duration);
+            }
+            
+            return toastId;
+        }
+        
+        function removeToast(toastId) {
+            const toast = $(`#${toastId}`);
+            toast.fadeOut(300, function() {
+                $(this).remove();
+            });
+        }
+        
+        function updateToast(toastId, message, type = null) {
+            const toast = $(`#${toastId}`);
+            if (toast.length === 0) return;
+            
+            toast.find('.toast-body').html(message);
+            
+            if (type) {
+                toast.removeClass('toast-info toast-success toast-warning toast-error')
+                     .addClass(`toast-${type}`);
+                
+                toast.find('.toast-progress')
+                    .css('background-color', type === 'success' ? '#28a745' : 
+                                             type === 'warning' ? '#ffc107' : 
+                                             type === 'error' ? '#dc3545' : 
+                                             'var(--primary-color)');
+            }
+        }
+        
+        // Function to poll for script status
+        function pollRefreshStatus() {
+            return new Promise((resolve, reject) => {
+                let pollInterval;
+                
+                const checkStatus = () => {
+                    fetch('/api/refresh-status')
+                        .then(response => response.json())
+                        .then(status => {
+                            // If script is no longer running, we're done
+                            if (!status.running) {
+                                clearInterval(pollInterval);
+                                
+                                if (status.exitCode === 0) {
+                                    resolve(status);
+                                } else {
+                                    reject(new Error(`Script failed with exit code ${status.exitCode}`));
+                                }
+                                return;
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error checking refresh status:', error);
+                            // Keep polling even if there's an error
+                        });
+                };
+                
+                // Start polling every 3 seconds (we already have a 1-second UI update timer)
+                pollInterval = setInterval(checkStatus, 3000);
+                
+                // Initial check
+                checkStatus();
+            });
+        }
     </script>
 </body>
 </html>

@@ -62,6 +62,12 @@ def fetch_paginated_data(base_url, endpoint, headers, params):
     time_range = f"from {params.get('fromTimestamp') or params.get('fromCreatedAt') or 'start'} to {params.get('toTimestamp') or params.get('toCreatedAt') or 'end'}"
     print(f"   Fetching paginated data for endpoint: {endpoint} ({time_range})...")
     logging.info(f"Initiating paginated fetch for {endpoint} ({time_range})")
+    
+    # Ensure we have date filtering params to avoid fetching all data
+    if not (params.get('fromTimestamp') or params.get('fromCreatedAt')):
+        logging.error(f"Missing date filter for {endpoint}. This would fetch ALL data. Aborting.")
+        print(f"   ERROR: Missing date filter for {endpoint}. Aborting to prevent fetching all data.")
+        return []
 
     while True:
         params['page'] = page
@@ -145,15 +151,47 @@ def save_raw_data(data_list, agent_name, endpoint_name, base_dir="dashboard_data
         print(f"         ERROR: Failed to save raw data to {filepath}. Check logs.")
 
 
-def fetch_langfuse_data(days_back=30):
+def fetch_langfuse_data(start_date):
     """
     Main function to fetch and process Langfuse data.
+    Fetches data from the specified start_date to the current time.
+    
+    Args:
+        start_date: The start date as a datetime object with timezone info.
     """
     start_time_script = datetime.now()
+    
+    # Add very clear start markers for both console and log
+    print("\n" + "="*80)
+    print("SCRIPT_MARKER: LANGFUSE_DATA_FETCHER_STARTING")
+    print(f"Starting Langfuse data refresh at: {start_time_script}")
+    print("="*80 + "\n")
+    
+    logging.info("="*50)
+    logging.info("SCRIPT_MARKER: LANGFUSE_DATA_FETCHER_STARTING")
     logging.info(f"--- Langfuse Data Fetch Script Started: {start_time_script} ---")
-    logging.info(f"Fetching data for the last {days_back} days.")
-    print(f"--- Langfuse Data Fetch Script Started ---")
-    print(f"Fetching data for the last {days_back} days.")
+    logging.info("="*50)
+    
+    # Date range calculation
+    end_date = datetime.now(timezone.utc)
+    
+    # Ensure the provided date has timezone info
+    if start_date.tzinfo is None:
+        start_date = start_date.replace(tzinfo=timezone.utc)
+    
+    # Ensure we have an exact midnight timestamp for consistent filtering
+    start_date = datetime(start_date.year, start_date.month, start_date.day, 0, 0, 0, tzinfo=timezone.utc)
+    
+    logging.info(f"Using start date: {start_date.isoformat()}")
+    print(f"Using start date: {start_date.isoformat()}")
+    
+    start_date_str_iso = start_date.isoformat(timespec='milliseconds').replace('+00:00', 'Z')
+    end_date_str_iso = end_date.isoformat(timespec='milliseconds').replace('+00:00', 'Z')
+    start_date_str_day = start_date.strftime("%Y-%m-%d")
+    end_date_str_day = end_date.strftime("%Y-%m-%d")
+    logging.info(f"Date range (ISO UTC): {start_date_str_iso} to {end_date_str_iso}")
+    logging.info(f"Date range (YYYY-MM-DD): {start_date_str_day} to {end_date_str_day}")
+    print(f"Date range: {start_date_str_iso} to {end_date_str_iso}")
 
     base_url = os.getenv("LANGFUSE_HOST", "https://your-langfuse-host.com")
     if not base_url.startswith("http"): base_url = "https://" + base_url
@@ -197,17 +235,6 @@ def fetch_langfuse_data(days_back=30):
     logging.info(f"Ensured data directory exists: {data_dir}")
     logging.info(f"Ensured raw data directory exists: {raw_data_dir}")
 
-    # Date range calculation
-    end_date = datetime.now(timezone.utc)
-    start_date = end_date - timedelta(days=days_back)
-    start_date_str_iso = start_date.isoformat(timespec='milliseconds').replace('+00:00', 'Z')
-    end_date_str_iso = end_date.isoformat(timespec='milliseconds').replace('+00:00', 'Z')
-    start_date_str_day = start_date.strftime("%Y-%m-%d")
-    end_date_str_day = end_date.strftime("%Y-%m-%d")
-    logging.info(f"Date range (ISO UTC): {start_date_str_iso} to {end_date_str_iso}")
-    logging.info(f"Date range (YYYY-MM-DD): {start_date_str_day} to {end_date_str_day}")
-    print(f"Date range: {start_date_str_iso} to {end_date_str_iso}")
-
     # Initialize lists for *processed* data across all agents
     all_traces_processed = []
     all_sessions_processed = []
@@ -234,6 +261,7 @@ def fetch_langfuse_data(days_back=30):
 
         # --- Fetch Data and Save Raw Responses ---
         common_params_trace_obs = {"limit": 100, "fromTimestamp": start_date_str_iso, "toTimestamp": end_date_str_iso}
+        # Ensure sessions use the same exact timestamp for consistency
         session_params = {"limit": 100, "fromCreatedAt": start_date_str_iso, "toCreatedAt": end_date_str_iso}
 
         # 1. Daily Metrics
@@ -283,6 +311,16 @@ def fetch_langfuse_data(days_back=30):
         save_raw_data(raw_agent_traces, agent_name, traces_endpoint, base_dir=raw_data_dir)
         print(f"   Processing {len(raw_agent_traces)} fetched traces...")
         
+        # Double-check that all items have timestamps on or after our filter date
+        trace_count_before_filter = len(raw_agent_traces)
+        raw_agent_traces = [trace for trace in raw_agent_traces if 
+                           parse_datetime(trace.get('timestamp')) and 
+                           parse_datetime(trace.get('timestamp')) >= start_date]
+        if len(raw_agent_traces) < trace_count_before_filter:
+            filtered_count = trace_count_before_filter - len(raw_agent_traces)
+            logging.warning(f"Filtered out {filtered_count} traces with timestamps before {start_date.isoformat()}")
+            print(f"   Warning: Filtered out {filtered_count} traces with timestamps before {start_date.isoformat()}")
+        
         # Check trace API for token and cost data
         trace_with_cost = sum(1 for t in raw_agent_traces if t.get('totalCost') is not None and t.get('totalCost') > 0)
         trace_with_tokens = sum(1 for t in raw_agent_traces if t.get('totalTokens') is not None and t.get('totalTokens') > 0)
@@ -292,7 +330,14 @@ def fetch_langfuse_data(days_back=30):
         # Save a sample trace to help debug
         if len(raw_agent_traces) > 0:
             sample_trace = raw_agent_traces[0]
-            logging.info(f"Sample trace data - ID: {sample_trace.get('id')}, Cost: {sample_trace.get('totalCost')}, Tokens: {sample_trace.get('totalTokens')}")
+            logging.info(f"Sample trace data - ID: {sample_trace.get('id')}, Cost: {sample_trace.get('totalCost')}, Tokens: {sample_trace.get('totalTokens')}, Latency: {sample_trace.get('latency')}")
+            
+            # Log the first 5 traces with latency data for debugging
+            latency_traces = [t for t in raw_agent_traces if t.get('latency') is not None][:5]
+            if latency_traces:
+                logging.info(f"Found {len([t for t in raw_agent_traces if t.get('latency') is not None])} traces with latency data")
+                for idx, trace in enumerate(latency_traces):
+                    logging.info(f"Raw trace {idx+1} latency example - ID: {trace.get('id')}, Latency: {trace.get('latency')}")
         
         for trace in raw_agent_traces:
             timestamp = parse_datetime(trace.get('timestamp'))
@@ -305,8 +350,10 @@ def fetch_langfuse_data(days_back=30):
                 'totalCost': trace.get('totalCost') if trace.get('totalCost') is not None else 0.0,
                 # Initialize tokens to 0, we'll populate from observations later
                 'totalTokens': 0,
-                # Placeholders for values derived from observations
-                'messageCount': 0, 'latency': 0.0,
+                # Use raw trace latency value if available, otherwise initialize to 0.0
+                'latency': trace.get('latency', 0.0),
+                # Placeholders for other values derived from observations
+                'messageCount': 0,
                 'startTime': timestamp, 'endTime': timestamp
             })
         print(f"   Finished processing traces.")
@@ -317,8 +364,20 @@ def fetch_langfuse_data(days_back=30):
         raw_agent_sessions = fetch_paginated_data(base_url, sessions_endpoint, headers, session_params.copy())
         save_raw_data(raw_agent_sessions, agent_name, sessions_endpoint, base_dir=raw_data_dir)
         print(f"   Processing {len(raw_agent_sessions)} fetched sessions...")
+        
+        # Double-check that all sessions have creation dates on or after our filter date
+        session_count_before_filter = len(raw_agent_sessions)
+        raw_agent_sessions = [session for session in raw_agent_sessions if 
+                             parse_datetime(session.get('createdAt')) and 
+                             parse_datetime(session.get('createdAt')) >= start_date]
+        if len(raw_agent_sessions) < session_count_before_filter:
+            filtered_count = session_count_before_filter - len(raw_agent_sessions)
+            logging.warning(f"Filtered out {filtered_count} sessions with creation dates before {start_date.isoformat()}")
+            print(f"   Warning: Filtered out {filtered_count} sessions with creation dates before {start_date.isoformat()}")
+            
         for session in raw_agent_sessions:
             created_at = parse_datetime(session.get('createdAt'))
+            # Only include sessions at or after the start date
             all_sessions_processed.append({
                 'id': session.get('id'), 'createdAt': created_at, 'agent': agent_name,
                 'userId': None, 'durationSeconds': 0, 'totalLatency': 0.0,
@@ -335,6 +394,16 @@ def fetch_langfuse_data(days_back=30):
             save_raw_data(raw_agent_observations, agent_name, obs_endpoint, base_dir=raw_data_dir)
             print(f"   Processing {len(raw_agent_observations)} fetched observations...")
             
+            # Double-check that all observations have start times on or after our filter date
+            obs_count_before_filter = len(raw_agent_observations)
+            raw_agent_observations = [obs for obs in raw_agent_observations if 
+                                     parse_datetime(obs.get('startTime')) and 
+                                     parse_datetime(obs.get('startTime')) >= start_date]
+            if len(raw_agent_observations) < obs_count_before_filter:
+                filtered_count = obs_count_before_filter - len(raw_agent_observations)
+                logging.warning(f"Filtered out {filtered_count} observations with start times before {start_date.isoformat()}")
+                print(f"   Warning: Filtered out {filtered_count} observations with start times before {start_date.isoformat()}")
+            
             # Check observations for token data
             obs_with_tokens = sum(1 for o in raw_agent_observations if o.get('usage', {}) and (o.get('usage', {}).get('total', 0) > 0 or 
                                                              o.get('usage', {}).get('input', 0) > 0 or 
@@ -350,6 +419,9 @@ def fetch_langfuse_data(days_back=30):
             for obs in raw_agent_observations:
                 start_time = parse_datetime(obs.get('startTime'))
                 end_time = parse_datetime(obs.get('endTime'))
+                
+                # Skip observations that don't meet the time criteria
+                
                 usage_data = obs.get('usage', {}) or {}
                 input_tokens = usage_data.get('input', 0) or 0
                 output_tokens = usage_data.get('output', 0) or 0
@@ -442,9 +514,14 @@ def fetch_langfuse_data(days_back=30):
         trace_id = trace.get('id')
         if trace_id in trace_metrics:
             metrics = trace_metrics[trace_id]
-            # Update message count, latency, and times
+            # Update message count and times
             trace['messageCount'] = metrics['messageCount']
-            trace['latency'] = metrics['totalLatency']
+            
+            # Only update latency if there is observation data and the trace doesn't already have latency
+            # This way we prioritize the original trace latency over calculated observation latency
+            if trace.get('latency', 0.0) == 0.0 and metrics['totalLatency'] > 0.0:
+                trace['latency'] = metrics['totalLatency']
+                logging.info(f"Updated trace {trace_id} latency from observations: {metrics['totalLatency']}")
             
             # Key fix: Update token data from observations
             obs_tokens = metrics['totalTokens']
@@ -475,6 +552,27 @@ def fetch_langfuse_data(days_back=30):
     print(f"   Finished aggregating trace data. Updated {updated_trace_count} traces.")
     print(f"   Token data updated for {traces_with_tokens_updated} traces. Total tokens: {total_tokens_from_observations}")
 
+    # After processing traces, log some statistics about latency values
+    trace_latency_stats = {
+        "with_raw_latency": 0,
+        "with_observation_latency": 0,
+        "with_no_latency": 0,
+        "total_traces": len(all_traces_processed)
+    }
+
+    for trace in all_traces_processed:
+        trace_id = trace.get('id')
+        if trace.get('latency', 0) > 0:
+            if trace_id in trace_metrics and trace_metrics[trace_id]['totalLatency'] > 0:
+                trace_latency_stats["with_observation_latency"] += 1
+            else:
+                trace_latency_stats["with_raw_latency"] += 1
+        else:
+            trace_latency_stats["with_no_latency"] += 1
+
+    logging.info(f"Trace latency statistics: {trace_latency_stats}")
+    print(f"   Trace latency statistics: Raw: {trace_latency_stats['with_raw_latency']}, Obs: {trace_latency_stats['with_observation_latency']}, None: {trace_latency_stats['with_no_latency']}, Total: {trace_latency_stats['total_traces']}")
+
     # 2. Aggregate Trace Data per Session (using trace-level token/cost)
     print("   Aggregating trace data per session...")
     logging.info("Aggregating trace data per session...")
@@ -489,22 +587,58 @@ def fetch_langfuse_data(days_back=30):
 
     for session_id, traces_in_session in traces_grouped_by_session.items():
         session_start, session_end, session_tokens, session_cost, session_total_latency = None, None, 0, 0.0, 0.0
+        
+        # Log for debugging - detailed session trace info
+        if len(traces_in_session) >= 3:  # Only log sessions with a meaningful number of traces
+            logging.info(f"Detailed analysis of session {session_id} with {len(traces_in_session)} traces:")
+            
         for trace in traces_in_session:
             session_metrics[session_id]['traceCount'] += 1
             # ** Fix: Use trace-level token/cost directly from processed trace **
             session_tokens += trace.get('totalTokens', 0)  # Already defaulted to 0 if null
             session_cost += trace.get('totalCost', 0.0)    # Already defaulted to 0.0 if null
-            session_total_latency += trace.get('latency', 0.0)
+            
+            # Use trace latency directly - this now preserves the original trace latency
+            trace_latency = trace.get('latency', 0.0)
+            session_total_latency += trace_latency
+            
+            # Detailed logging for sample sessions
+            if len(traces_in_session) >= 3 and session_metrics[session_id]['traceCount'] <= 5:  # Log first 5 traces
+                logging.info(f"  Trace {trace.get('id')}: latency={trace_latency:.2f}s, start={trace.get('startTime')}, end={trace.get('endTime')}")
+                time_diff = 0
+                if trace.get('startTime') and trace.get('endTime'):
+                    time_diff = (trace.get('endTime') - trace.get('startTime')).total_seconds()
+                    if abs(time_diff - trace_latency) > 1.0:  # If there's a significant difference
+                        logging.info(f"    NOTE: Trace time diff ({time_diff:.2f}s) differs from latency ({trace_latency:.2f}s)")
+            
             if trace.get('userId'): session_metrics[session_id]['userIds'].add(trace.get('userId'))
             if trace.get('agent'): session_metrics[session_id]['agentNames'].add(trace.get('agent'))
-            trace_start_time = trace.get('startTime'); trace_end_time = trace.get('endTime')
+            trace_start_time = trace.get('startTime');
+            trace_end_time = trace.get('endTime');  # Add this line to fix the missing variable
             if trace_start_time and isinstance(trace_start_time, datetime):
                 if session_start is None or trace_start_time < session_start: session_start = trace_start_time
             if trace_end_time and isinstance(trace_end_time, datetime):
                  if session_end is None or trace_end_time > session_end: session_end = trace_end_time
+        
+        # If we have start/end times but no latency, calculate an estimated latency
+        if session_total_latency == 0.0 and session_start and session_end and session_start != session_end:
+            estimated_latency = max(0, (session_end - session_start).total_seconds())
+            session_metrics[session_id]['totalLatency'] = estimated_latency
+            logging.info(f"Estimated session latency for {session_id}: {estimated_latency:.2f}s (no observation latency data)")
+            print(f"      Estimated session latency for {session_id}: {estimated_latency:.2f}s (based on timestamps)")
+        else:
+            session_metrics[session_id]['totalLatency'] = session_total_latency
+            
+        # Log the final session metrics for sample sessions
+        if len(traces_in_session) >= 3:
+            session_time_diff = 0
+            if session_start and session_end:
+                session_time_diff = (session_end - session_start).total_seconds()
+            logging.info(f"Session {session_id} final stats: latency_sum={session_total_latency:.2f}s, time_diff={session_time_diff:.2f}s")
+            logging.info(f"  Start: {session_start}, End: {session_end}")
+            
         session_metrics[session_id]['totalTokens'] = session_tokens
         session_metrics[session_id]['totalCost'] = session_cost
-        session_metrics[session_id]['totalLatency'] = session_total_latency
         session_metrics[session_id]['startTime'] = session_start
         session_metrics[session_id]['endTime'] = session_end
 
@@ -522,9 +656,10 @@ def fetch_langfuse_data(days_back=30):
             if metrics['endTime'] is not None and session['startTime'] and metrics['endTime'] >= session['startTime']: session['endTime'] = metrics['endTime']
             elif session['startTime'] is not None: session['endTime'] = session['startTime']
             elif session['createdAt']: session['endTime'] = session['createdAt']
-            if session['startTime'] and session['endTime'] and isinstance(session['startTime'], datetime) and isinstance(session['endTime'], datetime):
-                 session['durationSeconds'] = max(0, (session['endTime'] - session['startTime']).total_seconds())
-            else: session['durationSeconds'] = 0
+            
+            # IMPORTANT FIX: Use totalLatency for durationSeconds instead of time difference
+            session['durationSeconds'] = metrics['totalLatency']
+            
             if metrics['userIds']: session['userId'] = sorted(list(metrics['userIds']))[0]
             else: session['userId'] = None
             if metrics['agentNames']: session['agent'] = sorted(list(metrics['agentNames']))[0]
@@ -535,12 +670,55 @@ def fetch_langfuse_data(days_back=30):
             sessions_without_traces += 1
             session['traceCount'], session['totalTokens'], session['totalCost'], session['totalLatency'], session['durationSeconds'], session['userId'] = 0, 0, 0.0, 0.0, 0, None
 
+    # Log session metrics statistics
+    avg_duration_by_latency = sum(s['durationSeconds'] for s in all_sessions_processed) / max(1, len(all_sessions_processed))
+    logging.info(f"Average session duration (by latency): {avg_duration_by_latency:.2f} seconds")
+    print(f"   Average session duration: {avg_duration_by_latency:.2f} seconds")
+    
+    # Log detailed session duration metrics for the top 5 longest duration sessions
+    top_sessions = sorted(all_sessions_processed, key=lambda s: s.get('durationSeconds', 0), reverse=True)[:5]
+    logging.info(f"Top 5 longest duration sessions:")
+    for idx, session in enumerate(top_sessions):
+        session_id = session.get('id')
+        duration = session.get('durationSeconds', 0)
+        time_diff = 0
+        if session.get('startTime') and session.get('endTime'):
+            time_diff = (session.get('endTime') - session.get('startTime')).total_seconds()
+        
+        logging.info(f"{idx+1}. Session {session_id}: duration={duration:.2f}s, start={session.get('startTime')}, end={session.get('endTime')}")
+        logging.info(f"   Time diff between start/end: {time_diff:.2f}s")
+        logging.info(f"   Trace count: {session.get('traceCount')}")
+        
     logging.info(f"Finished session aggregation. Updated {updated_session_count}/{total_session_count} sessions.")
     if sessions_without_traces > 0: logging.warning(f"{sessions_without_traces} sessions had no traces.")
     if sessions_without_trace_times > 0: logging.warning(f"{sessions_without_trace_times} sessions lacked trace times.")
     print(f"   Finished aggregating session metrics. Updated {updated_session_count} sessions.")
 
-
+    # Additional diagnostic logging for observations with unusual latency values
+    unusual_latency_observations = []
+    zero_latency_observations = 0
+    negative_latency_observations = 0
+    extremely_long_latency_observations = 0
+    
+    for obs in all_observations_processed:
+        latency = obs.get('latency', 0)
+        if latency == 0:
+            zero_latency_observations += 1
+        elif latency < 0:  # This shouldn't happen but let's check
+            negative_latency_observations += 1
+            unusual_latency_observations.append(obs.get('id'))
+        elif latency > 300:  # More than 5 minutes
+            extremely_long_latency_observations += 1
+            unusual_latency_observations.append(obs.get('id'))
+            
+    if unusual_latency_observations or zero_latency_observations > total_obs_count * 0.25:
+        logging.warning(f"Observation latency analysis: {zero_latency_observations} zero latency, " +
+                      f"{negative_latency_observations} negative latency, " +
+                      f"{extremely_long_latency_observations} extremely long latency (>5min)")
+        if unusual_latency_observations:
+            sample_ids = unusual_latency_observations[:5]  # Log up to 5 unusual observations
+            logging.warning(f"Sample unusual latency observation IDs: {sample_ids}")
+    
     # --- Write Processed Data to JSON Files (Main Files) ---
     print("\n=== Writing Processed Data to JSON Files ===")
     logging.info("Starting to write processed data files.")
@@ -693,12 +871,25 @@ def fetch_langfuse_data(days_back=30):
     # --- Completion ---
     end_time_script = datetime.now()
     duration = end_time_script - start_time_script
-    logging.info(f"--- Langfuse Data Fetch Script Finished: {end_time_script} (Duration: {duration}) ---")
-    print(f"\n=== Data Processing Complete ===")
+    
+    # Add very clear end markers for both console and log
+    print("\n" + "="*80)
+    print("SCRIPT_MARKER: LANGFUSE_DATA_FETCHER_COMPLETED")
+    print(f"Langfuse data refresh COMPLETED at: {end_time_script}")
     print(f"Total execution time: {duration}")
     print(f"Raw API data saved to '{raw_data_dir}'. Processed data saved to '{data_dir}'.")
-    logging.info("Script finished successfully.")
+    print("="*80 + "\n")
+    
+    logging.info("="*50)
+    logging.info("SCRIPT_MARKER: LANGFUSE_DATA_FETCHER_COMPLETED")
+    logging.info(f"--- Langfuse Data Fetch Script Finished: {end_time_script} (Duration: {duration}) ---")
+    logging.info(f"Raw API data saved to '{raw_data_dir}'. Processed data saved to '{data_dir}'.")
+    logging.info("="*50)
+    
     return True
 
 if __name__ == "__main__":
-    fetch_langfuse_data(days_back=1)
+    # Use May 1st, 2025 at 00:00 UTC as the start date
+    may_1st_2025_utc = datetime(2025, 5, 1, 0, 0, 0, tzinfo=timezone.utc)
+    print(f"Fetching data from {may_1st_2025_utc.strftime('%Y-%m-%d %H:%M:%S %Z')}")
+    fetch_langfuse_data(may_1st_2025_utc)
