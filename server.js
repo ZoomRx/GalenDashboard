@@ -276,11 +276,31 @@ app.get('/api/refresh-status', (req, res) => {
 app.get('/api/traces/:traceId/observations', async (req, res) => {
     try {
         const traceId = req.params.traceId;
+        console.log(`Fetching observations for trace: ${traceId}`);
+        
         // Partial match support - if the trace ID starts with the provided string
         const isPartialMatch = traceId.length < 36; // UUID is typically 36 chars
         
         // Search for observation data in the raw_api directory
-        const rawDataDir = path.join(__dirname, 'dashboard_data', 'raw_api');
+        let rawDataDir = path.join(__dirname, 'dashboard_data', 'raw_api');
+        
+        // Check if raw_api directory exists
+        try {
+            await fs.access(rawDataDir);
+            console.log(`Raw API directory exists at: ${rawDataDir}`);
+        } catch (err) {
+            console.error(`Raw API directory not found at: ${rawDataDir}`, err);
+            // Try an alternative path (for hosted environments)
+            const altRawDataDir = path.join(__dirname, 'dashboard_data/raw_api');
+            try {
+                await fs.access(altRawDataDir);
+                console.log(`Found alternative raw API directory at: ${altRawDataDir}`);
+                // Use the alternative path
+                rawDataDir = altRawDataDir;
+            } catch (altErr) {
+                console.error(`Alternative raw API directory not found either`, altErr);
+            }
+        }
         
         // First, try to find the trace directly in all_traces.json
         // This is much faster than searching through raw files
@@ -289,8 +309,10 @@ app.get('/api/traces/:traceId/observations', async (req, res) => {
         let fullTraceId = traceId;
         
         try {
+            console.log(`Looking for trace in all_traces.json: ${allTracesPath}`);
             const allTracesData = await fs.readFile(allTracesPath, 'utf8');
             const allTraces = JSON.parse(allTracesData);
+            console.log(`Found ${allTraces.length} traces in all_traces.json`);
             
             // Find the trace - using startsWith for partial matches if needed
             const foundTrace = isPartialMatch 
@@ -300,6 +322,9 @@ app.get('/api/traces/:traceId/observations', async (req, res) => {
             if (foundTrace) {
                 fullTraceId = foundTrace.id;
                 traceAgentName = foundTrace.agent;
+                console.log(`Found trace in all_traces.json: ${fullTraceId}, agent: ${traceAgentName}`);
+            } else {
+                console.log(`Trace not found in all_traces.json`);
             }
         } catch (err) {
             console.error("Error accessing all_traces.json:", err);
@@ -308,20 +333,30 @@ app.get('/api/traces/:traceId/observations', async (req, res) => {
         
         // If we couldn't find the trace in all_traces.json, look in the raw files
         if (!traceAgentName) {
-            const traceFiles = await fs.readdir(rawDataDir)
-                .then(files => files.filter(file => file.includes('traces_raw.json')))
-                .catch(() => []);
+            console.log(`Looking for trace in raw trace files`);
+            let traceFiles = [];
+            try {
+                traceFiles = await fs.readdir(rawDataDir);
+                traceFiles = traceFiles.filter(file => file.includes('traces_raw.json'));
+                console.log(`Found ${traceFiles.length} trace files in raw_api directory`);
+            } catch (err) {
+                console.error(`Error reading trace files from ${rawDataDir}:`, err);
+                traceFiles = [];
+            }
                 
             // Process trace files in parallel for better performance
             const traceSearchPromises = traceFiles.map(async (traceFile) => {
                 try {
                     const filePath = path.join(rawDataDir, traceFile);
+                    console.log(`Checking file: ${filePath}`);
                     const data = await fs.readFile(filePath, 'utf8');
                     const traces = JSON.parse(data);
                     
                     // Check different possible data structures
                     const traceArray = Array.isArray(traces) ? traces : 
                                       traces.data ? traces.data : [];
+                    
+                    console.log(`File ${traceFile} contains ${traceArray.length} traces`);
                     
                     // Look for the trace - using startsWith for partial matches if needed
                     const foundTrace = isPartialMatch 
@@ -331,6 +366,7 @@ app.get('/api/traces/:traceId/observations', async (req, res) => {
                     if (foundTrace) {
                         // Extract agent from filename (e.g., HCP_P_traces_raw.json -> HCP_P)
                         const agentName = traceFile.split('_traces_raw.json')[0];
+                        console.log(`Found trace in ${traceFile}: ${foundTrace.id}, agent: ${agentName}`);
                         return { 
                             agentName,
                             fullTraceId: foundTrace.id,
@@ -350,6 +386,9 @@ app.get('/api/traces/:traceId/observations', async (req, res) => {
             if (traceInfo) {
                 traceAgentName = traceInfo.agentName;
                 fullTraceId = traceInfo.fullTraceId;
+                console.log(`Found trace in raw files: ${fullTraceId}, agent: ${traceAgentName}`);
+            } else {
+                console.log(`Trace not found in any raw trace files`);
             }
         }
         
@@ -363,6 +402,7 @@ app.get('/api/traces/:traceId/observations', async (req, res) => {
             try {
                 await fs.access(agentObsPath);
                 observationFiles = [agentObsFile];
+                console.log(`Found agent-specific observation file: ${agentObsPath}`);
             } catch (err) {
                 // File doesn't exist, fall back to checking all files
                 console.warn(`Agent observation file ${agentObsFile} not found, checking all files`);
@@ -374,20 +414,31 @@ app.get('/api/traces/:traceId/observations', async (req, res) => {
             try {
                 const files = await fs.readdir(rawDataDir);
                 observationFiles = files.filter(file => file.includes('observations_raw.json'));
+                console.log(`Found ${observationFiles.length} observation files in directory`);
             } catch (err) {
-                console.error("Error accessing raw_api directory:", err);
-                return res.status(404).json({ error: 'No observation data files found' });
+                console.error(`Error accessing raw_api directory: ${rawDataDir}`, err);
+                return res.status(404).json({ 
+                    error: 'No observation data files found',
+                    details: `Could not access ${rawDataDir}: ${err.message}`
+                });
             }
         }
         
         if (observationFiles.length === 0) {
-            return res.status(404).json({ error: 'No observation data files found' });
+            console.error(`No observation files found in ${rawDataDir}`);
+            return res.status(404).json({ 
+                error: 'No observation data files found',
+                details: `No observation files found in ${rawDataDir}`
+            });
         }
+        
+        console.log(`Processing ${observationFiles.length} observation files for trace ${fullTraceId}`);
         
         // Process observation files in parallel for better performance
         const observationPromises = observationFiles.map(async (file) => {
             try {
                 const filePath = path.join(rawDataDir, file);
+                console.log(`Reading observation file: ${filePath}`);
                 const data = await fs.readFile(filePath, 'utf8');
                 const parsedData = JSON.parse(data);
                 
@@ -399,8 +450,13 @@ app.get('/api/traces/:traceId/observations', async (req, res) => {
                     observations = parsedData;
                 }
                 
+                console.log(`File ${file} contains ${observations.length} observations`);
+                
                 // Filter for the current trace ID
-                return observations.filter(obs => obs.traceId === fullTraceId);
+                const matchingObservations = observations.filter(obs => obs.traceId === fullTraceId);
+                console.log(`Found ${matchingObservations.length} observations for trace ${fullTraceId} in file ${file}`);
+                
+                return matchingObservations;
             } catch (err) {
                 console.error(`Error reading or parsing ${file}:`, err);
                 return [];
@@ -412,8 +468,14 @@ app.get('/api/traces/:traceId/observations', async (req, res) => {
         // Replace flat() with a more compatible approach
         const allTraceObservations = [].concat(...observationResults);
         
+        console.log(`Total observations found for trace ${fullTraceId}: ${allTraceObservations.length}`);
+        
         if (allTraceObservations.length === 0) {
-            return res.status(404).json({ error: `No observations found for trace ${fullTraceId}` });
+            return res.status(404).json({ 
+                error: `No observations found for trace ${fullTraceId}`,
+                traceId: fullTraceId,
+                searchedFiles: observationFiles
+            });
         }
         
         // Calculate total tokens across all observations
@@ -474,6 +536,8 @@ app.get('/api/traces/:traceId/observations', async (req, res) => {
             return a.toolCallNumber - b.toolCallNumber;
         });
         
+        console.log(`Successfully processed ${tokenObservations.length} observations for trace ${fullTraceId}`);
+        
         res.json({ 
             traceId: fullTraceId, 
             toolCallCount: tokenObservations.length,
@@ -483,7 +547,11 @@ app.get('/api/traces/:traceId/observations', async (req, res) => {
         });
     } catch (error) {
         console.error('Error fetching observation data:', error);
-        res.status(500).json({ error: 'Failed to fetch observation data' });
+        res.status(500).json({ 
+            error: 'Failed to fetch observation data',
+            message: error.message,
+            stack: error.stack
+        });
     }
 });
 
