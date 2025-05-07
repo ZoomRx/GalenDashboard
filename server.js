@@ -276,206 +276,122 @@ app.get('/api/refresh-status', (req, res) => {
 app.get('/api/traces/:traceId/observations', async (req, res) => {
     try {
         const traceId = req.params.traceId;
-        console.log(`Fetching observations for trace: ${traceId}`);
-        
         // Partial match support - if the trace ID starts with the provided string
         const isPartialMatch = traceId.length < 36; // UUID is typically 36 chars
         
         // Search for observation data in the raw_api directory
-        let rawDataDir = path.join(__dirname, 'dashboard_data', 'raw_api');
+        const rawDataDir = path.join(__dirname, 'dashboard_data', 'raw_api');
         
-        // Check if raw_api directory exists
-        try {
-            await fs.access(rawDataDir);
-            console.log(`Raw API directory exists at: ${rawDataDir}`);
-        } catch (err) {
-            console.error(`Raw API directory not found at: ${rawDataDir}`, err);
-            // Try an alternative path (for hosted environments)
-            const altRawDataDir = path.join(__dirname, 'dashboard_data/raw_api');
-            try {
-                await fs.access(altRawDataDir);
-                console.log(`Found alternative raw API directory at: ${altRawDataDir}`);
-                // Use the alternative path
-                rawDataDir = altRawDataDir;
-            } catch (altErr) {
-                console.error(`Alternative raw API directory not found either`, altErr);
-            }
-        }
-        
-        // First, try to find the trace directly in all_traces.json
-        // This is much faster than searching through raw files
-        const allTracesPath = path.join(__dirname, 'dashboard_data', 'all_traces.json');
-        let traceAgentName = null;
-        let fullTraceId = traceId;
-        
-        try {
-            console.log(`Looking for trace in all_traces.json: ${allTracesPath}`);
-            const allTracesData = await fs.readFile(allTracesPath, 'utf8');
-            const allTraces = JSON.parse(allTracesData);
-            console.log(`Found ${allTraces.length} traces in all_traces.json`);
-            
-            // Find the trace - using startsWith for partial matches if needed
-            const foundTrace = isPartialMatch 
-                ? allTraces.find(trace => trace.id && trace.id.startsWith(traceId))
-                : allTraces.find(trace => trace.id === traceId);
-                
-            if (foundTrace) {
-                fullTraceId = foundTrace.id;
-                traceAgentName = foundTrace.agent;
-                console.log(`Found trace in all_traces.json: ${fullTraceId}, agent: ${traceAgentName}`);
-            } else {
-                console.log(`Trace not found in all_traces.json`);
-            }
-        } catch (err) {
-            console.error("Error accessing all_traces.json:", err);
-            // Continue with the search in raw files if all_traces.json doesn't work
-        }
-        
-        // If we couldn't find the trace in all_traces.json, look in the raw files
-        if (!traceAgentName) {
-            console.log(`Looking for trace in raw trace files`);
-            let traceFiles = [];
-            try {
-                traceFiles = await fs.readdir(rawDataDir);
-                traceFiles = traceFiles.filter(file => file.includes('traces_raw.json'));
-                console.log(`Found ${traceFiles.length} trace files in raw_api directory`);
-            } catch (err) {
-                console.error(`Error reading trace files from ${rawDataDir}:`, err);
-                traceFiles = [];
-            }
-                
-            // Process trace files in parallel for better performance
-            const traceSearchPromises = traceFiles.map(async (traceFile) => {
-                try {
-                    const filePath = path.join(rawDataDir, traceFile);
-                    console.log(`Checking file: ${filePath}`);
-                    const data = await fs.readFile(filePath, 'utf8');
-                    const traces = JSON.parse(data);
-                    
-                    // Check different possible data structures
-                    const traceArray = Array.isArray(traces) ? traces : 
-                                      traces.data ? traces.data : [];
-                    
-                    console.log(`File ${traceFile} contains ${traceArray.length} traces`);
-                    
-                    // Look for the trace - using startsWith for partial matches if needed
-                    const foundTrace = isPartialMatch 
-                        ? traceArray.find(trace => trace.id && trace.id.startsWith(traceId))
-                        : traceArray.find(trace => trace.id === traceId);
-                        
-                    if (foundTrace) {
-                        // Extract agent from filename (e.g., HCP_P_traces_raw.json -> HCP_P)
-                        const agentName = traceFile.split('_traces_raw.json')[0];
-                        console.log(`Found trace in ${traceFile}: ${foundTrace.id}, agent: ${agentName}`);
-                        return { 
-                            agentName,
-                            fullTraceId: foundTrace.id,
-                            expectedTokens: foundTrace.totalTokens
-                        };
-                    }
-                } catch (err) {
-                    console.error(`Error processing trace file ${traceFile}:`, err);
-                }
-                return null;
-            });
-            
-            // Wait for all trace file searches to complete
-            const results = await Promise.all(traceSearchPromises);
-            const traceInfo = results.find(result => result !== null);
-            
-            if (traceInfo) {
-                traceAgentName = traceInfo.agentName;
-                fullTraceId = traceInfo.fullTraceId;
-                console.log(`Found trace in raw files: ${fullTraceId}, agent: ${traceAgentName}`);
-            } else {
-                console.log(`Trace not found in any raw trace files`);
-            }
-        }
-        
-        // If we found the agent, we can directly look at that agent's observations file
+        // Get all files in the raw_api directory that contain observations data
         let observationFiles = [];
-        if (traceAgentName) {
-            const agentObsFile = `${traceAgentName}_observations_raw.json`;
-            const agentObsPath = path.join(rawDataDir, agentObsFile);
+        try {
+            const files = await fs.readdir(rawDataDir);
+            // Look for files matching the pattern AGENT_observations_raw.json
+            observationFiles = files.filter(file => file.includes('observations_raw.json'));
+        } catch (err) {
+            console.error("Error accessing raw_api directory:", err);
+            return res.status(404).json({ error: 'No observation data files found' });
+        }
+        
+        if (observationFiles.length === 0) {
+            return res.status(404).json({ error: 'No observation data files found' });
+        }
+        
+        // First, try to determine which agent the trace belongs to
+        // This will help us prioritize the correct file first
+        let traceAgentFile = null;
+        let fullTraceId = null;
+        
+        // Try to find the trace in the traces files to determine its agent
+        const traceFiles = await fs.readdir(rawDataDir)
+            .then(files => files.filter(file => file.includes('traces_raw.json')))
+            .catch(() => []);
             
-            // Check if the file exists
+        for (const traceFile of traceFiles) {
             try {
-                await fs.access(agentObsPath);
-                observationFiles = [agentObsFile];
-                console.log(`Found agent-specific observation file: ${agentObsPath}`);
+                const filePath = path.join(rawDataDir, traceFile);
+                const data = await fs.readFile(filePath, 'utf8');
+                const traces = JSON.parse(data);
+                
+                // Check different possible data structures
+                const traceArray = Array.isArray(traces) ? traces : 
+                                  traces.data ? traces.data : [];
+                
+                // Look for the trace - using startsWith for partial matches if needed
+                const foundTrace = isPartialMatch 
+                    ? traceArray.find(trace => trace.id && trace.id.startsWith(traceId))
+                    : traceArray.find(trace => trace.id === traceId);
+                    
+                if (foundTrace) {
+                    // Store the full trace ID if we're doing a partial match
+                    fullTraceId = foundTrace.id;
+                    
+                    // Extract agent from filename (e.g., HCP_P_traces_raw.json -> HCP_P)
+                    const agentName = traceFile.split('_traces_raw.json')[0];
+                    traceAgentFile = `${agentName}_observations_raw.json`;
+                    break;
+                }
             } catch (err) {
-                // File doesn't exist, fall back to checking all files
-                console.warn(`Agent observation file ${agentObsFile} not found, checking all files`);
+                console.error(`Error processing trace file ${traceFile}:`, err);
             }
         }
         
-        // If we couldn't find the agent-specific file, check all observation files
-        if (observationFiles.length === 0) {
-            try {
-                const files = await fs.readdir(rawDataDir);
-                observationFiles = files.filter(file => file.includes('observations_raw.json'));
-                console.log(`Found ${observationFiles.length} observation files in directory`);
-            } catch (err) {
-                console.error(`Error accessing raw_api directory: ${rawDataDir}`, err);
-                return res.status(404).json({ 
-                    error: 'No observation data files found',
-                    details: `Could not access ${rawDataDir}: ${err.message}`
-                });
-            }
+        // Use the full trace ID if we found one, otherwise use the provided ID
+        const searchTraceId = fullTraceId || traceId;
+        
+        // If we found which agent this trace belongs to, prioritize that file
+        if (traceAgentFile && observationFiles.includes(traceAgentFile)) {
+            // Move this file to the front of the array
+            observationFiles = [
+                traceAgentFile,
+                ...observationFiles.filter(file => file !== traceAgentFile)
+            ];
         }
         
-        if (observationFiles.length === 0) {
-            console.error(`No observation files found in ${rawDataDir}`);
-            return res.status(404).json({ 
-                error: 'No observation data files found',
-                details: `No observation files found in ${rawDataDir}`
-            });
-        }
+        // Collect all observations for the trace from all files
+        let allTraceObservations = [];
         
-        console.log(`Processing ${observationFiles.length} observation files for trace ${fullTraceId}`);
-        
-        // Process observation files in parallel for better performance
-        const observationPromises = observationFiles.map(async (file) => {
+        // Process all observation files
+        for (const file of observationFiles) {
             try {
                 const filePath = path.join(rawDataDir, file);
-                console.log(`Reading observation file: ${filePath}`);
                 const data = await fs.readFile(filePath, 'utf8');
                 const parsedData = JSON.parse(data);
                 
                 // Handle different data structures
                 let observations = [];
                 if (parsedData.data) {
+                    // Format: { data: [...observations] }
                     observations = parsedData.data;
                 } else if (Array.isArray(parsedData)) {
+                    // Format: [...observations]
                     observations = parsedData;
                 }
                 
-                console.log(`File ${file} contains ${observations.length} observations`);
-                
                 // Filter for the current trace ID
-                const matchingObservations = observations.filter(obs => obs.traceId === fullTraceId);
-                console.log(`Found ${matchingObservations.length} observations for trace ${fullTraceId} in file ${file}`);
+                const traceObservations = observations.filter(obs => obs.traceId === searchTraceId);
                 
-                return matchingObservations;
+                // Find observations with token data
+                const obsWithTokens = traceObservations.filter(obs => {
+                    const hasTokens = obs.totalTokens > 0 || 
+                                    (obs.usage && obs.usage.total > 0) ||
+                                    (obs.usageDetails && obs.usageDetails.total > 0);
+                    return hasTokens;
+                });
+                
+                allTraceObservations = [...allTraceObservations, ...traceObservations];
+                
+                // If we've found observations and this is the agent's file, we can stop here
+                if (traceObservations.length > 0 && file === traceAgentFile) {
+                    break;
+                }
             } catch (err) {
                 console.error(`Error reading or parsing ${file}:`, err);
-                return [];
             }
-        });
-        
-        // Wait for all observation file processing to complete
-        const observationResults = await Promise.all(observationPromises);
-        // Replace flat() with a more compatible approach
-        const allTraceObservations = [].concat(...observationResults);
-        
-        console.log(`Total observations found for trace ${fullTraceId}: ${allTraceObservations.length}`);
+        }
         
         if (allTraceObservations.length === 0) {
-            return res.status(404).json({ 
-                error: `No observations found for trace ${fullTraceId}`,
-                traceId: fullTraceId,
-                searchedFiles: observationFiles
-            });
+            return res.status(404).json({ error: `No observations found for trace ${searchTraceId}` });
         }
         
         // Calculate total tokens across all observations
@@ -536,22 +452,26 @@ app.get('/api/traces/:traceId/observations', async (req, res) => {
             return a.toolCallNumber - b.toolCallNumber;
         });
         
-        console.log(`Successfully processed ${tokenObservations.length} observations for trace ${fullTraceId}`);
+        // Get expected token count from trace data if available
+        let expectedTokens = null;
+        if (fullTraceId) {
+            const foundTrace = traceFiles.find(trace => trace.id === fullTraceId);
+            if (foundTrace && foundTrace.totalTokens) {
+                expectedTokens = foundTrace.totalTokens;
+            }
+        }
         
         res.json({ 
-            traceId: fullTraceId, 
+            traceId: searchTraceId, 
             toolCallCount: tokenObservations.length,
             toolCalls: tokenObservations,
             totalTraceTokens: totalObservationTokens,
-            observationCount: allTraceObservations.length
+            observationCount: allTraceObservations.length,
+            expectTokens: expectedTokens
         });
     } catch (error) {
         console.error('Error fetching observation data:', error);
-        res.status(500).json({ 
-            error: 'Failed to fetch observation data',
-            message: error.message,
-            stack: error.stack
-        });
+        res.status(500).json({ error: 'Failed to fetch observation data' });
     }
 });
 
