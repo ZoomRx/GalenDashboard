@@ -193,7 +193,7 @@ def fetch_langfuse_data(start_date):
     logging.info(f"Date range (YYYY-MM-DD): {start_date_str_day} to {end_date_str_day}")
     print(f"Date range: {start_date_str_iso} to {end_date_str_iso}")
 
-    base_url = os.getenv("LANGFUSE_HOST", "https://your-langfuse-host.com")
+    base_url = os.getenv("LANGFUSE_HOST")
     if not base_url.startswith("http"): base_url = "https://" + base_url
     logging.info(f"Using Langfuse Host: {base_url}")
     print(f"Using Langfuse Host: {base_url}")
@@ -450,6 +450,30 @@ def fetch_langfuse_data(start_date):
                     'level': obs.get('level'), 'statusMessage': obs.get('statusMessage'),
                     'parentObservationId': obs.get('parentObservationId'),
                     'metadata': obs.get('metadata'), 'agent': agent_name })
+            
+            # --- Save only GENERATION type observations for this agent (minimal fields) ---
+            generation_observations = []
+            for obs in raw_agent_observations:
+                if (obs.get('type') or '').upper() == 'GENERATION':
+                    minimal_obs = {
+                        'id': obs.get('id'),
+                        'traceId': obs.get('traceId'),
+                        'totalTokens': obs.get('totalTokens'),
+                        'name': obs.get('name'),
+                        'startTime': obs.get('startTime'),
+                        'endTime': obs.get('endTime')
+                    }
+                    generation_observations.append(minimal_obs)
+            gen_filename = f"{agent_name}_observation_generation.json"
+            gen_filepath = os.path.join(raw_data_dir, gen_filename)
+            print(f"   Saving {len(generation_observations)} GENERATION observations to {gen_filepath}...")
+            try:
+                with open(gen_filepath, "w") as f:
+                    json.dump(generation_observations, f, indent=2, cls=NpEncoder)
+                print(f"      Done.")
+            except Exception as e:
+                print(f"      ERROR: Failed to save GENERATION observations for {agent_name}: {e}")
+            
             print(f"   Finished processing observations.")
         else:
             print("   Skipping Observation fetch.")

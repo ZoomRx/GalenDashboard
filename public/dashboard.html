@@ -1115,7 +1115,22 @@
         }
 
         // --- Utility Functions ---
-        function formatNumber(num) { return (num || 0).toLocaleString(); }
+        // function formatNumber(num) { return (num || 0).toLocaleString(); }
+        function formatNumber(num) {
+            num = num || 0;
+            if (typeof num !== 'number') num = Number(num);
+            if (isNaN(num)) return '0';
+            if (Math.abs(num) >= 10000) {
+                // Show as 1 decimal if not a round thousand, else as integer k
+                const k = num / 1000;
+                if (Number.isInteger(k)) {
+                    return k + 'k';
+                } else {
+                    return k.toFixed(1).replace(/\.0$/, '') + 'k';
+                }
+            }
+            return num.toLocaleString();
+        }
         function formatCost(num) { return '$' + (num || 0).toFixed(4); }
         function formatDuration(seconds) {
             if (seconds === null || seconds === undefined || seconds < 0) return '-';
@@ -2008,58 +2023,44 @@
         // Trace Graph Functionality
         async function fetchTraceObservations(traceId) {
             try {
-                // Show loading spinner
-                $('#traceGraphLoading').show();
-                $('#traceGraphContainer').hide();
-                
-                // Find the trace data in our current filtered dataset
-                // Allow partial matching if the ID is shortened
+                // Find the trace to get the agent name
                 const partialId = traceId.substring(0, 8);
-                const trace = filteredData.traces.find(t => 
-                    t.id === traceId || t.id.startsWith(partialId)
-                );
-                
+                const trace = filteredData.traces.find(t => t.id === traceId || t.id.startsWith(partialId));
                 if (!trace) {
                     throw new Error("Trace not found");
                 }
-                
-                console.log(`Fetching observations for trace: ${trace.id}, tokens: ${trace.totalTokens}, messages: ${trace.messageCount}`);
-                
-                // Fetch real observation data from our API endpoint
-                // We'll pass just the first part of the ID if it's a UUID (commonly displayed shortened in UI)
-                const searchId = traceId.length === 36 ? traceId : traceId.substring(0, 8);
-                const response = await fetch(`/api/traces/${searchId}/observations`);
-                
+                const agent = trace.agent;
+                if (!agent) {
+                    throw new Error("Agent not found for trace");
+                }
+                // Load the minimal GENERATION observation file for this agent
+                const response = await fetch(`/dashboard_data/raw_api/${agent}_observation_generation.json`);
                 if (!response.ok) {
-                    // If we can't get real data, fall back to simulation
-                    console.warn(`Could not fetch real observation data for trace ${searchId}. Status: ${response.status}`);
-                    return generateSimulatedData(trace);
+                    throw new Error(`Could not load observation file for agent ${agent}`);
                 }
-                
-                const data = await response.json();
-                
-                if (!data.toolCalls || data.toolCalls.length === 0) {
-                    console.warn(`No tool calls found for trace ${searchId}, using simulated data`);
-                    return generateSimulatedData(trace);
-                }
-                
-                console.log(`Retrieved ${data.toolCalls.length} tool calls, total tokens: ${data.totalTraceTokens}`);
-                
-                // Compare the token count from the trace with what we got from observations
-                if (trace.totalTokens && data.totalTraceTokens && 
-                    Math.abs(trace.totalTokens - data.totalTraceTokens) / trace.totalTokens > 0.2) {
-                    console.warn(`Token count discrepancy: trace has ${trace.totalTokens} tokens, ` +
-                                 `but observations sum to ${data.totalTraceTokens} tokens`);
-                }
-                
-                // Sort the tool calls by number to ensure correct order
-                // Include all observations, even those with zero tokens
-                return data.toolCalls.sort((a, b) => a.toolCallNumber - b.toolCallNumber);
-                
+                const allObservations = await response.json();
+                // Filter for this traceId
+                let traceObservations = allObservations.filter(obs => obs.traceId === trace.id);
+                // Sort by startTime ascending (oldest to newest), fallback to id asc
+                traceObservations.sort((a, b) => {
+                    if (a.startTime && b.startTime) {
+                        return new Date(a.startTime) - new Date(b.startTime);
+                    } else {
+                        return (a.id || '').localeCompare(b.id || '');
+                    }
+                });
+                // Map to the expected structure for the graph (no toolCallNumber)
+                return traceObservations.map((obs, idx) => ({
+                    tokenUsage: obs.totalTokens || 0,
+                    id: obs.id,
+                    traceId: obs.traceId,
+                    name: obs.name,
+                    startTime: obs.startTime,
+                    endTime: obs.endTime
+                }));
             } catch (error) {
-                console.error("Error fetching trace observations:", error);
-                // Fall back to simulated data if real data fetch fails
-                return generateSimulatedData(trace);
+                console.error("Error loading minimal observation data:", error);
+                return [];
             }
         }
 
@@ -2123,7 +2124,7 @@
             const agentName = trace ? trace.agent : '';
             
             // Sort observations by toolCallNumber to ensure correct order
-            observations.sort((a, b) => a.toolCallNumber - b.toolCallNumber);
+            observations.sort((a, b) => b.toolCallNumber - a.toolCallNumber);
             
             // Prepare data for the chart - include ALL observations
             // Just use simple numbers for the x-axis
@@ -2233,9 +2234,9 @@
                 }
             });
             
-            // Just show the observation count in the summary section
-            document.getElementById('traceGraphSummary').textContent = 
-                `${observations.length} total observations`;
+            // Show the generation observation count and a note
+            document.getElementById('traceGraphSummary').innerHTML = 
+                `<b>${observations.length} total generation observations</b><br><span class="text-muted" style="font-size: 0.95em;">A <b>generation observation</b> represents a single model output (completion) event, such as a response generated by an LLM for a user prompt or tool call.</span>`;
             
             // Create a table with non-zero token observations
             const nonZeroObservations = observations.filter(obs => (obs.tokenUsage || 0) > 0);
@@ -2257,7 +2258,7 @@
                                 const obsLink = obs.id ? getLangfuseObservationUrl(obs.id, agentName, obs.timestamp) : '';
                                 return `
                                     <tr>
-                                        <td>${obs.toolCallNumber}</td>
+                                        <td>${index + 1}</td>
                                         <td>${obs.name || 'Unknown'}</td>
                                         <td class="text-end">${obs.tokenUsage.toLocaleString()}</td>
                                         <td class="text-center">${obs.id ? 
