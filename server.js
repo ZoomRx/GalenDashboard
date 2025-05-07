@@ -158,7 +158,7 @@ app.post('/api/refresh-data', async (req, res) => {
         // Save initial status to file
         await saveStatusToFile();
         
-        const pythonProcess = spawn('python3', ['langfuse_data_fetcher.py']);
+        const pythonProcess = spawn('/app/GalenDashboard/galendashboard/bin/python3.13', ['langfuse_data_fetcher.py']);
         
         // Store process ID for potential future use
         global.pythonScriptStatus.processId = pythonProcess.pid;

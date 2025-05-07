@@ -4,3 +4,4 @@ node_modules
 langfuse_data_fetcher.log
 dashboard_data
 package-lock.json
+refresh_status.json
